@@ -3,8 +3,8 @@ import ReactDOM from "react-dom";
 import { exhaustiveCheck } from "ts-exhaustive-check";
 import { Cmd, Program, Dispatch } from "@typescript-tea/core";
 import { reactRuntime } from "@typescript-tea/react-runtime";
-import * as Http from "./effect-manager";
-import { Result } from "./result";
+import * as Http from "../effect-manager";
+import { Result } from "../result";
 
 // -- Press a button to send a GET request for random cat GIFs.
 
