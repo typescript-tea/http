@@ -21,16 +21,8 @@ import { Result, Err, Ok, mapError } from "./result";
  * the full text of _Public Opinion_ by Walter Lippmann.
  * **Note:** Use [`elm/url`](/packages/elm/url/latest) to build reliable URLs.
  */
-export function get<A>(url: string): Cmd<A> {
-  return request(
-    "GET",
-    [],
-    url,
-    emptyBody(),
-    // expect: r.expect,
-    undefined,
-    undefined
-  );
+export function get<A>(url: string, expect: Expect<A>): Cmd<A> {
+  return request("GET", [], url, emptyBody(), expect, undefined, undefined);
 }
 
 /**
@@ -55,12 +47,8 @@ export function get<A>(url: string): Cmd<A> {
  * [here]: https://guide.elm-lang.org/interop/json.html
  *
  */
-export function post<A>(
-  url: string,
-  body: Body
-  // , expect : Expect msg
-): Cmd<A> {
-  return request("POST", [], url, body, /*expect,*/ undefined, undefined);
+export function post<A>(url: string, body: Body, expect: Expect<A>): Cmd<A> {
+  return request("POST", [], url, body, expect, undefined, undefined);
 }
 
 /**
@@ -88,8 +76,7 @@ export function request<A>(
   headers: ReadonlyArray<Header>,
   url: string,
   body: Body,
-  // , expect : Expect msg
-  //   onResponse: (result: Result<string, Error>) => A,
+  expect: Expect<A>,
   timeout: number | undefined,
   tracker: string | undefined
 ): Cmd<A> {
@@ -100,7 +87,7 @@ export function request<A>(
     headers,
     url,
     body,
-    // expect = r.expect,
+    expect,
     timeout,
     tracker,
     allowCookiesFromOtherDomains: false
@@ -396,8 +383,6 @@ export function expectStringResponse<A, x, a>(
   toMsg: (r: Result<x, a>) => A,
   toResult: (r: Response<string>) => Result<x, a>
 ): Expect<A> {
-  // expectStringResponse toMsg toResult =
-  //   Elm.Kernel.Http.expect "" identity (toResult >> toMsg)
   return {
     type: "Expect",
     $: 0,
@@ -480,14 +465,14 @@ export type Cancel = {
   readonly type: "Cancel";
   readonly tracker: string;
 };
-export type Request<_A> = {
+export type Request<A> = {
   readonly home: typeof home;
   readonly type: "Request";
   readonly method: string;
   readonly headers: ReadonlyArray<Header>;
   readonly url: string;
   readonly body: Body;
-  // , expect : Expect msg
+  readonly expect: Expect<A>;
   readonly timeout: number | undefined;
   readonly tracker: string | undefined;
   readonly allowCookiesFromOtherDomains: boolean;
