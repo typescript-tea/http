@@ -1,15 +1,6 @@
 import { EffectManager, Dispatch, LeafEffect, Cmd } from "@typescript-tea/core";
-
-// -- RESULT (from elm core)
-
-/**
- * A `Result` is either `Ok` meaning the computation succeeded, or it is an
- * `Err` meaning that there was some failure.
- */
-
-export type Result<TError, TValue> =
-  | { readonly type: "Ok"; readonly value: TValue }
-  | { readonly type: "Err"; readonly error: TError };
+import { exhaustiveCheck } from "ts-exhaustive-check";
+import { Result, Err, Ok, mapError } from "./result";
 
 // -- REQUESTS
 
@@ -232,14 +223,13 @@ export type Expect<A> = {
  * The response body is always some sequence of bytes, but in this case, we
  * expect it to be UTF-8 encoded text that can be turned into a `String`.
  */
-
-/*
-
-
-function expectString<A>(toMsg: (Result<Error, String>) => msg): Expect<A> {
-  expectStringResponse toMsg (resolve Ok)
+export function expectString<A>(
+  toMsg: (r: Result<Error, string>) => A
+): Expect<A> {
+  return expectStringResponse(toMsg, resolve(Ok));
 }
 
+/*
 
 {-| Expect the response body to be JSON. Like if you want to get a random cat
 GIF you might say:
@@ -315,18 +305,35 @@ expectWhatever : (Result Error () -> msg) -> Expect msg
 expectWhatever toMsg =
   expectBytesResponse toMsg (resolve (\_ -> Ok ()))
 
-
-resolve : (body -> Result String a) -> Response body -> Result Error a
-resolve toResult response =
-  case response of
-    BadUrl_ url -> Err (BadUrl url)
-    Timeout_ -> Err Timeout
-    NetworkError_ -> Err NetworkError
-    BadStatus_ metadata _ -> Err (BadStatus metadata.statusCode)
-    GoodStatus_ _ body -> Result.mapError BadBody (toResult body)
-
-
 */
+
+function resolve<a, body>(toResult: (b: body) => Result<string, a>) {
+  return (response: Response<body>) => {
+    switch (response.type) {
+      case "BadUrl_":
+        return Err({ type: "BadUrl", url: response.url });
+      case "Timeout_":
+        return Err({ type: "Timeout" });
+      case "NetworkError_":
+        return Err({ type: "NetworkError" });
+      case "BadStatus_":
+        return Err({
+          type: "BadStatus",
+          statusCode: response.metadata.statusCode
+        });
+      case "GoodStatus_":
+        return mapError(
+          () => ({
+            type: "BadBody",
+            body: (response.body as unknown) as string
+          }),
+          toResult(response.body)
+        );
+      default:
+        return exhaustiveCheck(response, true);
+    }
+  };
+}
 
 /**
  * {-| A `Request` can fail in a couple ways:
@@ -342,11 +349,11 @@ resolve toResult response =
  * [`expectBytesResponse`](#expectBytesResponse) to get more flexibility on this.
  */
 export type Error =
-  | { readonly type: "BadUrl"; readonly value: string }
+  | { readonly type: "BadUrl"; readonly url: string }
   | { readonly type: "Timeout" }
   | { readonly type: "NetworkError" }
-  | { readonly type: "BadStatus"; readonly value: number }
-  | { readonly type: "BadBody"; readonly value: string };
+  | { readonly type: "BadStatus"; readonly statusCode: number }
+  | { readonly type: "BadBody"; readonly body: string };
 
 // -- ELABORATE EXPECTATIONS
 
@@ -429,12 +436,12 @@ export function expectBytesResponse<A, x, a>(
  * or [`expectBytesResponse`](#expectBytesResponse).
  */
 type Response<body> =
-  | { readonly type: "BadUrl_"; readonly a: string }
+  | { readonly type: "BadUrl_"; readonly url: string }
   | { readonly type: "Timeout_" }
   | { readonly type: "NetworkError_" }
   | {
       readonly type: "BadStatus_";
-      readonly meta: Metadata;
+      readonly metadata: Metadata;
       readonly body: body;
     }
   | {
