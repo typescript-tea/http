@@ -205,30 +205,40 @@ export function fileBody(f: File): Body {
 
 // -- EXPECT
 
+/**
+ * Logic for interpreting a response body.
+ */
+
+export type Expect<A> = {
+  readonly type: "Expect";
+  readonly $: 0;
+  readonly __type: string;
+  readonly __toBody: (a: unknown) => unknown;
+  readonly __toValue: (a: Response<unknown>) => A;
+};
+
+/**
+ * Expect the response body to be a `String`. Like when getting the full text
+ * of a book:
+ *     import Http
+ *     type Msg
+ *       = GotText (Result Http.Error String)
+ *     getPublicOpinion : Cmd Msg
+ *     getPublicOpinion =
+ *       Http.get
+ *         { url = "https://elm-lang.org/assets/public-opinion.txt"
+ *         , expect = Http.expectString GotText
+ *         }
+ * The response body is always some sequence of bytes, but in this case, we
+ * expect it to be UTF-8 encoded text that can be turned into a `String`.
+ */
+
 /*
 
-{-| Logic for interpreting a response body.
--}
-type Expect msg = Expect
 
-
-{-| Expect the response body to be a `String`. Like when getting the full text
-of a book:
-    import Http
-    type Msg
-      = GotText (Result Http.Error String)
-    getPublicOpinion : Cmd Msg
-    getPublicOpinion =
-      Http.get
-        { url = "https://elm-lang.org/assets/public-opinion.txt"
-        , expect = Http.expectString GotText
-        }
-The response body is always some sequence of bytes, but in this case, we
-expect it to be UTF-8 encoded text that can be turned into a `String`.
--}
-expectString : (Result Error String -> msg) -> Expect msg
-expectString toMsg =
+function expectString<A>(toMsg: (Result<Error, String>) => msg): Expect<A> {
   expectStringResponse toMsg (resolve Ok)
+}
 
 
 {-| Expect the response body to be JSON. Like if you want to get a random cat
@@ -337,6 +347,119 @@ export type Error =
   | { readonly type: "NetworkError" }
   | { readonly type: "BadStatus"; readonly value: number }
   | { readonly type: "BadBody"; readonly value: string };
+
+// -- ELABORATE EXPECTATIONS
+
+/**
+ * Expect a [`Response`](#Response) with a `String` body. So you could define
+ * your own [`expectJson`](#expectJson) like this:
+ *     import Http
+ *     import Json.Decode as D
+ *     expectJson : (Result Http.Error a -> msg) -> D.Decoder a -> Expect msg
+ *     expectJson toMsg decoder =
+ *       expectStringResponse toMsg <|
+ *         \response ->
+ *           case response of
+ *             Http.BadUrl_ url ->
+ *               Err (Http.BadUrl url)
+ *             Http.Timeout_ ->
+ *               Err Http.Timeout
+ *             Http.NetworkError_ ->
+ *               Err Http.NetworkError
+ *             Http.BadStatus_ metadata body ->
+ *               Err (Http.BadStatus metadata.statusCode)
+ *             Http.GoodStatus_ metadata body ->
+ *               case D.decodeString decoder body of
+ *                 Ok value ->
+ *                   Ok value
+ *                 Err err ->
+ *                   BadBody (D.errorToString err)
+ * This function is great for fancier error handling and getting response headers.
+ * For example, maybe when your sever gives a 404 status code (not found) it also
+ * provides a helpful JSON message in the response body. This function lets you
+ * add logic to the `BadStatus_` branch so you can parse that JSON and give users
+ * a more helpful message! Or make your own custom error type for your particular
+ * application!
+ */
+export function expectStringResponse<A, x, a>(
+  toMsg: (r: Result<x, a>) => A,
+  toResult: (r: Response<string>) => Result<x, a>
+): Expect<A> {
+  // expectStringResponse toMsg toResult =
+  //   Elm.Kernel.Http.expect "" identity (toResult >> toMsg)
+  return {
+    type: "Expect",
+    $: 0,
+    __type: "",
+    __toBody: (a: string) => a,
+    __toValue: (a: Response<string>) => toMsg(toResult(a))
+  };
+}
+
+type Bytes = ArrayBuffer;
+
+/**
+ * Expect a [`Response`](#Response) with a `Bytes` body.
+ * It works just like [`expectStringResponse`](#expectStringResponse), giving you
+ * more access to headers and more leeway in defining your own errors.
+ */
+export function expectBytesResponse<A, x, a>(
+  toMsg: (r: Result<x, a>) => A,
+  toResult: (r: Response<Bytes>) => Result<x, a>
+): Expect<A> {
+  return {
+    type: "Expect",
+    $: 0,
+    __type: "arraybuffer",
+    __toBody: (arrayBuffer: unknown) =>
+      new DataView(arrayBuffer as ArrayBuffer),
+    __toValue: (a: Response<Bytes>) => toMsg(toResult(a))
+  };
+}
+
+/**
+ * A `Response` can come back a couple different ways:
+ * - `BadUrl_` means you did not provide a valid URL.
+ * - `Timeout_` means it took too long to get a response.
+ * - `NetworkError_` means the user turned off their wifi, went in a cave, etc.
+ * - `BadResponse_` means you got a response back, but the status code indicates failure.
+ * - `GoodResponse_` means you got a response back with a nice status code!
+ * The type of the `body` depends on whether you use
+ * [`expectStringResponse`](#expectStringResponse)
+ * or [`expectBytesResponse`](#expectBytesResponse).
+ */
+type Response<body> =
+  | { readonly type: "BadUrl_"; readonly a: string }
+  | { readonly type: "Timeout_" }
+  | { readonly type: "NetworkError_" }
+  | {
+      readonly type: "BadStatus_";
+      readonly meta: Metadata;
+      readonly body: body;
+    }
+  | {
+      readonly type: "GoodStatus_";
+      readonly meta: Metadata;
+      readonly body: body;
+    };
+
+/**
+ * Extra information about the response:
+ * - `url` of the server that actually responded (so you can detect redirects)
+ * - `statusCode` like `200` or `404`
+ * - `statusText` describing what the `statusCode` means a little
+ * - `headers` like `Content-Length` and `Expires`
+ * **Note:** It is possible for a response to have the same header multiple times.
+ * In that case, all the values end up in a single entry in the `headers`
+ * dictionary. The values are separated by commas, following the rules outlined
+ * [here](https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable).
+ */
+type Metadata = {
+  readonly url: string;
+  readonly statusCode: number;
+  readonly statusText: string;
+  readonly headers: ReadonlyMap<string, string>;
+};
 
 // -- COMMANDS and SUBSCRIPTIONS
 
