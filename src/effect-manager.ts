@@ -285,27 +285,31 @@ expectBytes toMsg decoder =
   expectBytesResponse toMsg <| resolve <|
     \bytes ->
       Result.fromMaybe "unexpected bytes" (Bytes.decode decoder bytes)
-
-
-{-| Expect the response body to be whatever. It does not matter. Ignore it!
-For example, you might want this when uploading files:
-    import Http
-    type Msg
-      = Uploaded (Result Http.Error ())
-    upload : File -> Cmd Msg
-    upload file =
-      Http.post
-        { url = "/upload"
-        , body = Http.fileBody file
-        , expect = Http.expectWhatever Uploaded
-        }
-The server may be giving back a response body, but we do not care about it.
--}
-expectWhatever : (Result Error () -> msg) -> Expect msg
-expectWhatever toMsg =
-  expectBytesResponse toMsg (resolve (\_ -> Ok ()))
-
 */
+
+/**
+ * Expect the response body to be whatever. It does not matter. Ignore it!
+ * For example, you might want this when uploading files:
+ *     import Http
+ *     type Msg
+ *       = Uploaded (Result Http.Error ())
+ *     upload : File -> Cmd Msg
+ *     upload file =
+ *       Http.post
+ *         { url = "/upload"
+ *         , body = Http.fileBody file
+ *         , expect = Http.expectWhatever Uploaded
+ *         }
+ * The server may be giving back a response body, but we do not care about it.
+ */
+export function expectWhatever<A>(
+  toMsg: (r: Result<Error, readonly []>) => A
+): Expect<A> {
+  return expectBytesResponse(
+    toMsg,
+    resolve(() => Ok<[]>([]))
+  );
+}
 
 function resolve<a, body>(toResult: (b: body) => Result<string, a>) {
   return (response: Response<body>) => {
