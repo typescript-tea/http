@@ -1,4 +1,9 @@
-import { EffectManager, Dispatch, LeafEffect, Cmd } from "@typescript-tea/core";
+import {
+  EffectManager,
+  Dispatch,
+  Cmd,
+  ActionMapper
+} from "@typescript-tea/core";
 import { exhaustiveCheck } from "ts-exhaustive-check";
 import { Result, Err, Ok, mapError } from "./result";
 
@@ -194,6 +199,18 @@ export type Expect<A> = {
   readonly __toBody: (a: unknown) => unknown;
   readonly __toValue: (a: Response<unknown>) => A;
 };
+
+function mapExpect<A1, A2>(
+  func: ActionMapper<A1, A2>,
+  expect: Expect<A1>
+): Expect<A2> {
+  return {
+    ...expect,
+    __toValue: function(x) {
+      return func(expect.__toValue(x));
+    }
+  };
+}
 
 /**
  * Expect the response body to be a `String`. Like when getting the full text
@@ -457,6 +474,105 @@ type Metadata = {
   readonly headers: ReadonlyMap<string, string>;
 };
 
+// -- CANCEL
+
+/**
+ * Try to cancel an ongoing request based on a `tracker`.
+ */
+export function cancel<A>(tracker: string): Cmd<A> {
+  return { home, type: "Cancel", tracker } as Cancel;
+}
+
+// -- PROGRESS
+
+/**
+ * Track the progress of a request. Create a [`request`](#request) where
+ * `tracker = Just "form.pdf"` and you can track it with a subscription like
+ * `track "form.pdf" GotProgress`.
+ */
+export function track<A>(tracker: string, toMsg: (p: Progress) => A): MySub<A> {
+  //  subscription (MySub tracker toMsg)
+  return { type: "MySub", tracker, toMsg };
+}
+
+/**
+ * There are two phases to HTTP requests. First you **send** a bunch of data,
+ * then you **receive** a bunch of data. For example, say you use `fileBody` to
+ * upload a file of 262144 bytes. From there, progress will go like this:
+ * ```
+ * Sending   { sent =      0, size = 262144 }  -- 0.0
+ * Sending   { sent =  65536, size = 262144 }  -- 0.25
+ * Sending   { sent = 131072, size = 262144 }  -- 0.5
+ * Sending   { sent = 196608, size = 262144 }  -- 0.75
+ * Sending   { sent = 262144, size = 262144 }  -- 1.0
+ * Receiving { received =  0, size = Just 16 } -- 0.0
+ * Receiving { received = 16, size = Just 16 } -- 1.0
+ * ```
+ * With file uploads, the **send** phase is expensive. That is what we saw in our
+ * example. But with file downloads, the **receive** phase is expensive.
+ * Use [`fractionSent`](#fractionSent) and [`fractionReceived`](#fractionReceived)
+ * to turn this progress information into specific fractions!
+ * **Note:** The `size` of the response is based on the [`Content-Length`][cl]
+ * header, and in rare and annoying cases, a server may not include that header.
+ * That is why the `size` is a `Maybe Int` in `Receiving`.
+ * [cl]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Length
+ */
+type Progress =
+  | { readonly type: "Sending"; readonly sent: number; readonly size: number }
+  | {
+      readonly type: "Receiving";
+      readonly received: number;
+      readonly size: number | undefined;
+    };
+
+/**
+ * Turn `Sending` progress into a useful fraction.
+ *     fractionSent { sent =   0, size = 1024 } == 0.0
+ *     fractionSent { sent = 256, size = 1024 } == 0.25
+ *     fractionSent { sent = 512, size = 1024 } == 0.5
+ *     -- fractionSent { sent = 0, size = 0 } == 1.0
+ * The result is always between `0.0` and `1.0`, ensuring that any progress bar
+ * animations never go out of bounds.
+ * And notice that `size` can be zero. That means you are sending a request with
+ * an empty body. Very common! When `size` is zero, the result is always `1.0`.
+ * **Note:** If you create your own function to compute this fraction, watch out
+ * for divide-by-zero errors!
+ */
+export function fractionSent(sent: number, size: number): number {
+  return size === 0 ? 1 : clamp(0, 1, sent / size);
+}
+function clamp(min: number, max: number, value: number): number {
+  return value < min ? min : value > max ? max : value;
+}
+
+/**
+ * Turn `Receiving` progress into a useful fraction for progress bars.
+ *     fractionReceived { received =   0, size = Just 1024 } == 0.0
+ *     fractionReceived { received = 256, size = Just 1024 } == 0.25
+ *     fractionReceived { received = 512, size = Just 1024 } == 0.5
+ *     -- fractionReceived { received =   0, size = Nothing } == 0.0
+ *     -- fractionReceived { received = 256, size = Nothing } == 0.0
+ *     -- fractionReceived { received = 512, size = Nothing } == 0.0
+ * The `size` here is based on the [`Content-Length`][cl] header which may be
+ * missing in some cases. A server may be misconfigured or it may be streaming
+ * data and not actually know the final size. Whatever the case, this function
+ * will always give `0.0` when the final size is unknown.
+ * Furthermore, the `Content-Length` header may be incorrect! The implementation
+ * clamps the fraction between `0.0` and `1.0`, so you will just get `1.0` if
+ * you ever receive more bytes than promised.
+ * **Note:** If you are streaming something, you can write a custom version of
+ * this function that just tracks bytes received. Maybe you show that 22kb or 83kb
+ * have been downloaded, without a specific fraction. If you do this, be wary of
+ * divide-by-zero errors because `size` can always be zero!
+ * [cl]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Length
+ */
+export function fractionReceived(
+  received: number,
+  size: number | undefined
+): number {
+  return size === undefined ? 0 : size === 0 ? 1 : clamp(0, 1, received / size);
+}
+
 // -- COMMANDS and SUBSCRIPTIONS
 
 export type MyCmd<A> = Cancel | Request<A>;
@@ -478,44 +594,158 @@ export type Request<A> = {
   readonly allowCookiesFromOtherDomains: boolean;
 };
 
-// function mapCmd() {}
+export function mapCmd<A1, A2>(
+  func: ActionMapper<A1, A2>,
+  cmd: MyCmd<A1>
+): MyCmd<A2> {
+  switch (cmd.type) {
+    case "Cancel":
+      return cmd;
+    case "Request":
+      return {
+        ...cmd,
+        expect: mapExpect(func, cmd.expect)
+      };
+    default:
+      return exhaustiveCheck(cmd, true);
+  }
+}
 
-// function mapSub() {}
+export type MySub<A> = {
+  readonly type: "MySub";
+  readonly tracker: string;
+  readonly toMsg: (p: Progress) => A;
+};
+
+export function mapSub<A1, A2>(
+  func: ActionMapper<A1, A2>,
+  sub: MySub<A1>
+): MySub<A2> {
+  return { ...sub, toMsg: (p: Progress) => func(sub.toMsg(p)) };
+}
 
 // -- EFFECT MANAGER
 
 const home = "http";
 
-type State = {};
+type State<A> = {
+  readonly reqs: Reqs;
+  readonly subs: ReadonlyArray<MySub<A>>;
+};
+type Reqs = { readonly [key: string]: Promise<unknown> };
 
-const init = (): State => ({});
+const init = <A>(): State<A> => ({ reqs: {}, subs: [] });
 
 type SelfAction = { readonly type: "Action1" } | { readonly type: "Action2" };
 
 export const createEffectManager = <AppAction>(): EffectManager<
   AppAction,
   SelfAction,
-  State,
+  State<AppAction>,
   typeof home
 > => ({
   home,
   mapCmd: (_, c) => c,
   mapSub: (_, s) => s,
-  onEffects,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onEffects: onEffects as any,
   onSelfAction
 });
 
 // -- APP MESSAGES
 
 function onEffects<AppAction>(
-  _dispatchApp: Dispatch<AppAction>,
-  _dispatchSelf: Dispatch<SelfAction>,
-  _cmds: ReadonlyArray<LeafEffect<AppAction>>,
-  _subs: ReadonlyArray<LeafEffect<AppAction>>,
-  state: State
-): State {
-  return state;
+  dispatchApp: Dispatch<AppAction>,
+  dispatchSelf: Dispatch<SelfAction>,
+  cmds: ReadonlyArray<MyCmd<AppAction>>,
+  subs: ReadonlyArray<MySub<AppAction>>,
+  state: State<AppAction>
+): State<AppAction> {
+  const reqs = updateReqs(dispatchApp, dispatchSelf, cmds, state.reqs);
+  return { reqs, subs };
 }
+
+function updateReqs<A>(
+  _dispatchApp: Dispatch<A>,
+  _dispatchSelf: Dispatch<SelfAction>,
+  cmds: ReadonlyArray<MyCmd<A>>,
+  reqs: Reqs
+): Reqs {
+  if (cmds.length === 0) {
+    return reqs;
+  }
+
+  const mutableReqs: { [key: string]: Promise<unknown> } = { ...reqs };
+  for (const cmd of cmds) {
+    switch (cmd.type) {
+      case "Cancel": {
+        const req = mutableReqs[cmd.tracker];
+        if (req !== undefined) {
+          // TODO: Kill the fetch promise...
+          //     Process.kill pid
+          //       |> Task.andThen (\_ -> updateReqs router otherCmds (Dict.remove tracker reqs))
+          delete mutableReqs[cmd.tracker];
+        }
+        break;
+      }
+
+      case "Request": {
+        // Process.spawn (Elm.Kernel.Http.toTask router (Platform.sendToApp router) req)
+        //   |> Task.andThen (\pid ->
+        //         case req.tracker of
+        //           Nothing ->
+        //             updateReqs router otherCmds reqs
+
+        //           Just tracker ->
+        //             updateReqs router otherCmds (Dict.insert tracker pid reqs)
+        //     )
+        const promise = fetch(cmd.url);
+        if (cmd.tracker !== undefined) {
+          mutableReqs[cmd.tracker] = promise;
+        }
+        break;
+      }
+
+      default:
+        exhaustiveCheck(cmd);
+    }
+  }
+  return mutableReqs;
+}
+
+/*
+
+updateReqs router cmds reqs =
+  case cmds of
+    [] ->
+      Task.succeed reqs
+
+    cmd :: otherCmds ->
+      case cmd of
+        Cancel tracker ->
+          case Dict.get tracker reqs of
+            Nothing ->
+              updateReqs router otherCmds reqs
+
+            Just pid ->
+              Process.kill pid
+                |> Task.andThen (\_ -> updateReqs router otherCmds (Dict.remove tracker reqs))
+
+        Request req ->
+          Process.spawn (Elm.Kernel.Http.toTask router (Platform.sendToApp router) req)
+            |> Task.andThen (\pid ->
+                  case req.tracker of
+                    Nothing ->
+                      updateReqs router otherCmds reqs
+
+                    Just tracker ->
+                      updateReqs router otherCmds (Dict.insert tracker pid reqs)
+              )
+
+
+
+
+*/
 
 // -- SELF MESSAGES
 
@@ -523,7 +753,7 @@ function onSelfAction<AppAction>(
   _dispatchApp: Dispatch<AppAction>,
   _dispatchSelf: Dispatch<SelfAction>,
   _action: SelfAction,
-  state: State = init()
-): State {
+  state: State<AppAction> = init()
+): State<AppAction> {
   return state;
 }
