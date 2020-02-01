@@ -88,7 +88,7 @@ function getRandomCatGif(): Cmd<Action> {
   );
 }
 
-function gifDecoder(s: string): Result<string, Http.Json> {
+function gifDecoder(s: string): Result<string, string> {
   try {
     const parsed = JSON.parse(s);
     if (parsed.data?.image_url !== undefined) {

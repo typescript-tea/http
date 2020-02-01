@@ -244,12 +244,30 @@ export function expectString<A>(toMsg: (r: Result<Error, string>) => A): Expect<
  * If the JSON decoder fails, you get a `BadBody` error that tries to explain
  * what went wrong.
  */
-export type Json = string | number | boolean | null | ReadonlyArray<Json> | { readonly [key: string]: Json };
-export function expectJson<A>(
-  toMsg: (result: Result<Error, Json>) => A,
-  decoder: (b: string) => Result<string, Json>
+export function expectJson<A, TSuccess>(
+  toMsg: (result: Result<Error, TSuccess>) => A,
+  decoder: (b: string) => Result<string, TSuccess>
 ): Expect<A> {
   return expectStringResponse(toMsg, resolve(decoder));
+}
+
+/**
+ * Expect valid json but do not care about the contents. Probably
+ * not a good idea as skipping checking the contents may cause
+ * hard to debug runtime exceptions further ahead.
+ */
+export type Json = string | number | boolean | null | ReadonlyArray<Json> | { readonly [key: string]: Json };
+export function expectAnyJson<A>(toMsg: (result: Result<Error, Json>) => A): Expect<A> {
+  return expectStringResponse(
+    toMsg,
+    resolve((s) => {
+      try {
+        return Ok(JSON.parse(s));
+      } catch (e) {
+        return Err("Could not parse JSON");
+      }
+    })
+  );
 }
 
 /**
