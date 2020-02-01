@@ -348,7 +348,7 @@ function resolve<TSuccess, TBody>(toResult: (body: TBody) => Result<string, TSuc
 }
 
 /**
- * {-| A `Request` can fail in a couple ways:
+ * A `Request` can fail in a couple ways:
  * - `BadUrl` means you did not provide a valid URL.
  * - `Timeout` means it took too long to get a response.
  * - `NetworkError` means the user turned off their wifi, went in a cave, etc.
