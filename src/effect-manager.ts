@@ -1,9 +1,4 @@
-import {
-  EffectManager,
-  Dispatch,
-  Cmd,
-  ActionMapper
-} from "@typescript-tea/core";
+import { EffectManager, Dispatch, Cmd, ActionMapper } from "@typescript-tea/core";
 import { exhaustiveCheck } from "ts-exhaustive-check";
 import { Result, Err, Ok, mapError } from "./result";
 
@@ -95,7 +90,7 @@ export function request<A>(
     expect,
     timeout,
     tracker,
-    allowCookiesFromOtherDomains: false
+    allowCookiesFromOtherDomains: false,
   };
   return r;
 }
@@ -137,9 +132,7 @@ export function emptyBody(): Body {
  * Put some JSON value in the body of your `Request`. This will automatically
  * add the `Content-Type: application/json` header.
  */
-export function jsonBody(
-  value: {} | ReadonlyArray<unknown> | number | string | boolean
-): Body {
+export function jsonBody(value: {} | ReadonlyArray<unknown> | number | string | boolean): Body {
   return ["application/json", value];
 }
 
@@ -195,20 +188,17 @@ export function fileBody(f: File): Body {
 export type Expect<A> = {
   readonly type: "Expect";
   readonly $: 0;
-  readonly __type: string;
+  readonly __type: XMLHttpRequestResponseType;
   readonly __toBody: (a: unknown) => unknown;
   readonly __toValue: (a: Response<unknown>) => A;
 };
 
-function mapExpect<A1, A2>(
-  func: ActionMapper<A1, A2>,
-  expect: Expect<A1>
-): Expect<A2> {
+function mapExpect<A1, A2>(func: ActionMapper<A1, A2>, expect: Expect<A1>): Expect<A2> {
   return {
     ...expect,
     __toValue: function(x) {
       return func(expect.__toValue(x));
-    }
+    },
   };
 }
 
@@ -227,9 +217,7 @@ function mapExpect<A1, A2>(
  * The response body is always some sequence of bytes, but in this case, we
  * expect it to be UTF-8 encoded text that can be turned into a `String`.
  */
-export function expectString<A>(
-  toMsg: (r: Result<Error, string>) => A
-): Expect<A> {
+export function expectString<A>(toMsg: (r: Result<Error, string>) => A): Expect<A> {
   return expectStringResponse(toMsg, resolve(Ok));
 }
 
@@ -306,9 +294,7 @@ expectBytes toMsg decoder =
  *         }
  * The server may be giving back a response body, but we do not care about it.
  */
-export function expectWhatever<A>(
-  toMsg: (r: Result<Error, readonly []>) => A
-): Expect<A> {
+export function expectWhatever<A>(toMsg: (r: Result<Error, readonly []>) => A): Expect<A> {
   return expectBytesResponse(
     toMsg,
     resolve(() => Ok<[]>([]))
@@ -327,13 +313,13 @@ function resolve<a, body>(toResult: (b: body) => Result<string, a>) {
       case "BadStatus_":
         return Err({
           type: "BadStatus",
-          statusCode: response.metadata.statusCode
+          statusCode: response.metadata.statusCode,
         });
       case "GoodStatus_":
         return mapError(
           () => ({
             type: "BadBody",
-            body: (response.body as unknown) as string
+            body: (response.body as unknown) as string,
           }),
           toResult(response.body)
         );
@@ -405,7 +391,7 @@ export function expectStringResponse<A, x, a>(
     $: 0,
     __type: "",
     __toBody: (a: string) => a,
-    __toValue: (a: Response<string>) => toMsg(toResult(a))
+    __toValue: (a: Response<string>) => toMsg(toResult(a)),
   };
 }
 
@@ -424,9 +410,8 @@ export function expectBytesResponse<A, x, a>(
     type: "Expect",
     $: 0,
     __type: "arraybuffer",
-    __toBody: (arrayBuffer: unknown) =>
-      new DataView(arrayBuffer as ArrayBuffer),
-    __toValue: (a: Response<Bytes>) => toMsg(toResult(a))
+    __toBody: (arrayBuffer: unknown) => new DataView(arrayBuffer as ArrayBuffer),
+    __toValue: (a: Response<Bytes>) => toMsg(toResult(a)),
   };
 }
 
@@ -452,7 +437,7 @@ type Response<body> =
     }
   | {
       readonly type: "GoodStatus_";
-      readonly meta: Metadata;
+      readonly metadata: Metadata;
       readonly body: body;
     };
 
@@ -471,7 +456,7 @@ type Metadata = {
   readonly url: string;
   readonly statusCode: number;
   readonly statusText: string;
-  readonly headers: ReadonlyMap<string, string>;
+  readonly headers: { readonly [key: string]: string };
 };
 
 // -- CANCEL
@@ -566,10 +551,7 @@ function clamp(min: number, max: number, value: number): number {
  * divide-by-zero errors because `size` can always be zero!
  * [cl]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Length
  */
-export function fractionReceived(
-  received: number,
-  size: number | undefined
-): number {
+export function fractionReceived(received: number, size: number | undefined): number {
   return size === undefined ? 0 : size === 0 ? 1 : clamp(0, 1, received / size);
 }
 
@@ -594,17 +576,14 @@ export type Request<A> = {
   readonly allowCookiesFromOtherDomains: boolean;
 };
 
-export function mapCmd<A1, A2>(
-  func: ActionMapper<A1, A2>,
-  cmd: MyCmd<A1>
-): MyCmd<A2> {
+export function mapCmd<A1, A2>(func: ActionMapper<A1, A2>, cmd: MyCmd<A1>): MyCmd<A2> {
   switch (cmd.type) {
     case "Cancel":
       return cmd;
     case "Request":
       return {
         ...cmd,
-        expect: mapExpect(func, cmd.expect)
+        expect: mapExpect(func, cmd.expect),
       };
     default:
       return exhaustiveCheck(cmd, true);
@@ -617,10 +596,7 @@ export type MySub<A> = {
   readonly toMsg: (p: Progress) => A;
 };
 
-export function mapSub<A1, A2>(
-  func: ActionMapper<A1, A2>,
-  sub: MySub<A1>
-): MySub<A2> {
+export function mapSub<A1, A2>(func: ActionMapper<A1, A2>, sub: MySub<A1>): MySub<A2> {
   return { ...sub, toMsg: (p: Progress) => func(sub.toMsg(p)) };
 }
 
@@ -632,11 +608,9 @@ type State<A> = {
   readonly reqs: Reqs;
   readonly subs: ReadonlyArray<MySub<A>>;
 };
-type Reqs = { readonly [key: string]: Promise<unknown> };
+type Reqs = { readonly [key: string]: () => void };
 
 const init = <A>(): State<A> => ({ reqs: {}, subs: [] });
-
-type SelfAction = { readonly type: "Action1" } | { readonly type: "Action2" };
 
 export const createEffectManager = <AppAction>(): EffectManager<
   AppAction,
@@ -649,7 +623,7 @@ export const createEffectManager = <AppAction>(): EffectManager<
   mapSub: (_, s) => s,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onEffects: onEffects as any,
-  onSelfAction
+  onSelfAction,
 });
 
 // -- APP MESSAGES
@@ -666,8 +640,8 @@ function onEffects<AppAction>(
 }
 
 function updateReqs<A>(
-  _dispatchApp: Dispatch<A>,
-  _dispatchSelf: Dispatch<SelfAction>,
+  dispatchApp: Dispatch<A>,
+  dispatchSelf: Dispatch<SelfAction>,
   cmds: ReadonlyArray<MyCmd<A>>,
   reqs: Reqs
 ): Reqs {
@@ -675,15 +649,14 @@ function updateReqs<A>(
     return reqs;
   }
 
-  const mutableReqs: { [key: string]: Promise<unknown> } = { ...reqs };
+  const mutableReqs: { [key: string]: () => void } = { ...reqs };
   for (const cmd of cmds) {
     switch (cmd.type) {
       case "Cancel": {
         const req = mutableReqs[cmd.tracker];
         if (req !== undefined) {
-          // TODO: Kill the fetch promise...
-          //     Process.kill pid
-          //       |> Task.andThen (\_ -> updateReqs router otherCmds (Dict.remove tracker reqs))
+          const abort = mutableReqs[cmd.tracker];
+          abort();
           delete mutableReqs[cmd.tracker];
         }
         break;
@@ -699,9 +672,9 @@ function updateReqs<A>(
         //           Just tracker ->
         //             updateReqs router otherCmds (Dict.insert tracker pid reqs)
         //     )
-        const promise = fetch(cmd.url);
-        if (cmd.tracker !== undefined) {
-          mutableReqs[cmd.tracker] = promise;
+        const abort = toTask(dispatchApp, dispatchSelf, cmd);
+        if (cmd.tracker !== undefined && abort !== undefined) {
+          mutableReqs[cmd.tracker] = abort;
         }
         break;
       }
@@ -749,11 +722,172 @@ updateReqs router cmds reqs =
 
 // -- SELF MESSAGES
 
+type SelfAction = { readonly type: "Progress"; readonly tracker: string; readonly progress: Progress };
+
 function onSelfAction<AppAction>(
   _dispatchApp: Dispatch<AppAction>,
   _dispatchSelf: Dispatch<SelfAction>,
   _action: SelfAction,
   state: State<AppAction> = init()
 ): State<AppAction> {
+  // Task.sequence (List.filterMap (maybeSend router tracker progress) state.subs)
+  //   |> Task.andThen (\_ -> Task.succeed state)
   return state;
+}
+
+/*
+
+maybeSend : MyRouter msg -> String -> Progress -> MySub msg -> Maybe (Task x ())
+maybeSend router desiredTracker progress (MySub actualTracker toMsg) =
+  if desiredTracker == actualTracker then
+    Just (Platform.sendToApp router (toMsg progress))
+  else
+    Nothing
+
+*/
+
+// -- SEND REQUEST
+
+// eslint-disable-next-line functional/prefer-readonly-type
+type XMLHttpRequestEx = XMLHttpRequest & { __isAborted: boolean };
+
+function toTask<A>(
+  dispatchApp: Dispatch<A>,
+  dispatchSelf: Dispatch<SelfAction>,
+  request: Request<A>
+): (() => void) | undefined {
+  function done(response: Response<unknown>): void {
+    const value = request.expect.__toValue(response);
+    dispatchApp(value);
+  }
+
+  const xhr = new XMLHttpRequest() as XMLHttpRequestEx;
+  xhr.addEventListener("error", () => done({ type: "NetworkError_" }));
+  xhr.addEventListener("timeout", () => done({ type: "Timeout_" }));
+  xhr.addEventListener("load", () => done(_Http_toResponse(request.expect.__toBody, xhr)));
+  // eslint-disable-next-line no-unused-expressions
+  request.tracker && _Http_track(dispatchSelf, xhr, request.tracker);
+
+  try {
+    xhr.open(request.method, request.url, true);
+  } catch (e) {
+    done({ type: "BadUrl_", url: request.url });
+    return undefined;
+  }
+
+  configureRequest(xhr, request);
+
+  // eslint-disable-next-line no-unused-expressions
+  request.body && request.body[0] && xhr.setRequestHeader("Content-Type", request.body[0]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  xhr.send(request.body && (request.body[1] as any));
+
+  return () => {
+    xhr.__isAborted = true;
+    xhr.abort();
+  };
+}
+
+// -- CONFIGURE
+
+function configureRequest(xhr: XMLHttpRequest, request: Request<unknown>): void {
+  for (const header of request.headers) {
+    xhr.setRequestHeader(header[0], header[1]);
+  }
+  xhr.timeout = request.timeout || 0;
+  xhr.responseType = request.expect.__type;
+  xhr.withCredentials = request.allowCookiesFromOtherDomains;
+}
+
+// -- RESPONSES
+
+function _Http_toResponse(toBody: (a: unknown) => unknown, xhr: XMLHttpRequest): Response<unknown> {
+  const metadata = _Http_toMetadata(xhr);
+  const body = toBody(xhr.response);
+  return xhr.status >= 200 && xhr.status < 300
+    ? { type: "GoodStatus_", metadata, body }
+    : { type: "BadStatus_", metadata, body };
+}
+
+// -- METADATA
+
+function _Http_toMetadata(xhr: XMLHttpRequest): Metadata {
+  return {
+    url: xhr.responseURL,
+    statusCode: xhr.status,
+    statusText: xhr.statusText,
+    headers: _Http_parseHeaders(xhr.getAllResponseHeaders()),
+  };
+}
+
+// -- HEADERS
+
+function _Http_parseHeaders(rawHeaders: string): { readonly [key: string]: string } {
+  if (!rawHeaders) {
+    return {};
+  }
+
+  const headers: { [key: string]: string } = {};
+  const headerPairs = rawHeaders.split("\r\n");
+  for (let i = headerPairs.length; i--; ) {
+    const headerPair = headerPairs[i];
+    const index = headerPair.indexOf(": ");
+    if (index > 0) {
+      const key = headerPair.substring(0, index);
+      const value = headerPair.substring(index + 2);
+      const oldValue = headers[key];
+      headers[key] = oldValue !== undefined ? value + ", " + oldValue : value;
+    }
+  }
+  return headers;
+}
+
+// -- BODY and PARTS
+
+// const _Http_emptyBody = { $: 0 };
+// const _Http_pair = F2(function(a, b) {
+//   return { $: 0, a: a, b: b };
+// });
+
+// function _Http_toFormData(parts) {
+//   for (
+//     var formData = new FormData();
+//     parts.b;
+//     parts = parts.b // WHILE_CONS
+//   ) {
+//     var part = parts.a;
+//     formData.append(part.a, part.b);
+//   }
+//   return formData;
+// }
+
+// var _Http_bytesToBlob = F2(function(mime, bytes) {
+//   return new Blob([bytes], { type: mime });
+// });
+
+// -- PROGRESS
+
+function _Http_track(dispatchSelf: Dispatch<SelfAction>, xhr: XMLHttpRequestEx, tracker: string): void {
+  // TODO check out lengthComputable on loadstart event
+
+  xhr.upload.addEventListener("progress", (event) => {
+    if (xhr.__isAborted) {
+      return;
+    }
+    dispatchSelf({ type: "Progress", tracker, progress: { type: "Sending", sent: event.loaded, size: event.total } });
+  });
+  xhr.addEventListener("progress", (event) => {
+    if (xhr.__isAborted) {
+      return;
+    }
+    dispatchSelf({
+      type: "Progress",
+      tracker,
+      progress: {
+        type: "Receiving",
+        received: event.loaded,
+        size: event.lengthComputable ? event.total : undefined,
+      },
+    });
+  });
 }
