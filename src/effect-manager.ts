@@ -252,34 +252,32 @@ export function expectJson<A>(
   return expectStringResponse(toMsg, resolve(decoder));
 }
 
-/*
-
-
-{-| Expect the response body to be binary data. For example, maybe you are
-talking to an endpoint that gives back ProtoBuf data:
-    import Bytes.Decode as Bytes
-    import Http
-    type Msg
-      = GotData (Result Http.Error Data)
-    getData : Cmd Msg
-    getData =
-      Http.get
-        { url = "/data"
-        , expect = Http.expectBytes GotData dataDecoder
-        }
-    -- dataDecoder : Bytes.Decoder Data
-You would use [`elm/bytes`](/packages/elm/bytes/latest/) to decode the binary
-data according to a proto definition file like `example.proto`.
-If the decoder fails, you get a `BadBody` error that just indicates that
-_something_ went wrong. It probably makes sense to debug by peeking at the
-bytes you are getting in the browser developer tools or something.
--}
-expectBytes : (Result Error a -> msg) -> Bytes.Decoder a -> Expect msg
-expectBytes toMsg decoder =
-  expectBytesResponse toMsg <| resolve <|
-    \bytes ->
-      Result.fromMaybe "unexpected bytes" (Bytes.decode decoder bytes)
-*/
+/**
+ * Expect the response body to be binary data. For example, maybe you are
+ * talking to an endpoint that gives back ProtoBuf data:
+ *     import Bytes.Decode as Bytes
+ *     import Http
+ *     type Msg
+ *       = GotData (Result Http.Error Data)
+ *     getData : Cmd Msg
+ *     getData =
+ *       Http.get
+ *         { url = "/data"
+ *         , expect = Http.expectBytes GotData dataDecoder
+ *         }
+ *     -- dataDecoder : Bytes.Decoder Data
+ * You would use [`elm/bytes`](/packages/elm/bytes/latest/) to decode the binary
+ * data according to a proto definition file like `example.proto`.
+ * If the decoder fails, you get a `BadBody` error that just indicates that
+ * _something_ went wrong. It probably makes sense to debug by peeking at the
+ * bytes you are getting in the browser developer tools or something.
+ */
+export function expectBytes<A, TSuccess>(
+  toMsg: (result: Result<Error, TSuccess>) => A,
+  decoder: (b: unknown) => Result<string, TSuccess>
+): Expect<A> {
+  return expectBytesResponse(toMsg, resolve(decoder));
+}
 
 /**
  * Expect the response body to be whatever. It does not matter. Ignore it!
@@ -303,8 +301,8 @@ export function expectWhatever<A>(toMsg: (r: Result<Error, readonly []>) => A): 
   );
 }
 
-function resolve<a, body>(toResult: (b: body) => Result<string, a>) {
-  return (response: Response<body>) => {
+function resolve<TSuccess, TBody>(toResult: (body: TBody) => Result<string, TSuccess>) {
+  return (response: Response<TBody>) => {
     switch (response.type) {
       case "BadUrl_":
         return Err({ type: "BadUrl", url: response.url });
@@ -384,9 +382,9 @@ export type Error =
  * a more helpful message! Or make your own custom error type for your particular
  * application!
  */
-export function expectStringResponse<A, x, a>(
-  toMsg: (r: Result<x, a>) => A,
-  toResult: (r: Response<string>) => Result<x, a>
+export function expectStringResponse<A, TError, TSuccess>(
+  toMsg: (r: Result<TError, TSuccess>) => A,
+  toResult: (r: Response<string>) => Result<TError, TSuccess>
 ): Expect<A> {
   return {
     type: "Expect",
@@ -403,15 +401,15 @@ type Bytes = ArrayBuffer;
  * It works just like [`expectStringResponse`](#expectStringResponse), giving you
  * more access to headers and more leeway in defining your own errors.
  */
-export function expectBytesResponse<A, x, a>(
-  toMsg: (r: Result<x, a>) => A,
-  toResult: (r: Response<Bytes>) => Result<x, a>
+export function expectBytesResponse<A, TError, TSuccess>(
+  toMsg: (r: Result<TError, TSuccess>) => A,
+  toResult: (r: Response<Bytes>) => Result<TError, TSuccess>
 ): Expect<A> {
   return {
     type: "Expect",
     __type: "arraybuffer",
-    __toBody: (arrayBuffer: unknown) => new DataView(arrayBuffer as ArrayBuffer),
-    __toValue: (a: Response<Bytes>) => toMsg(toResult(a)),
+    __toBody: (arrayBuffer: ArrayBuffer) => new DataView(arrayBuffer),
+    __toValue: (response: Response<Bytes>) => toMsg(toResult(response)),
   };
 }
 
