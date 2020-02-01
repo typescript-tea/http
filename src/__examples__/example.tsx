@@ -89,9 +89,13 @@ function getRandomCatGif(): Cmd<Action> {
 }
 
 function gifDecoder(s: string): Result<string, Http.Json> {
-  const parsed = JSON.parse(s);
-  if (parsed.data?.image_url !== undefined) {
-    return Ok(parsed.data.image_url);
+  try {
+    const parsed = JSON.parse(s);
+    if (parsed.data?.image_url !== undefined) {
+      return Ok(parsed.data.image_url);
+    }
+  } catch (e) {
+    return Err("Bad format");
   }
   return Err("Bad format");
 }

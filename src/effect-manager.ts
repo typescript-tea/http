@@ -247,13 +247,9 @@ export function expectString<A>(toMsg: (r: Result<Error, string>) => A): Expect<
 export type Json = string | number | boolean | null | ReadonlyArray<Json> | { readonly [key: string]: Json };
 export function expectJson<A>(
   toMsg: (result: Result<Error, Json>) => A,
-  decoder: (b: string) => Result<string, Json> = (s) => Ok(JSON.parse(s))
+  decoder: (b: string) => Result<string, Json>
 ): Expect<A> {
   return expectStringResponse(toMsg, resolve(decoder));
-
-  // expectStringResponse toMsg <| resolve <|
-  //   \string ->
-  //     Result.mapError Decode.errorToString (Decode.decodeString decoder string)
 }
 
 /*
