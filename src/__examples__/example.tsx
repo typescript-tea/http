@@ -4,7 +4,7 @@ import { exhaustiveCheck } from "ts-exhaustive-check";
 import { Cmd, Program, Dispatch } from "@typescript-tea/core";
 import { reactRuntime } from "@typescript-tea/react-runtime";
 import * as Http from "../effect-manager";
-import { Result } from "../result";
+import { Result, Ok, Err } from "../result";
 
 // -- Press a button to send a GET request for random cat GIFs.
 
@@ -83,10 +83,18 @@ function viewGif(dispatch: Dispatch<Action>, state: State): JSX.Element {
 
 function getRandomCatGif(): Cmd<Action> {
   return Http.get(
-    "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat",
-    // Http.expectJson<A>(() => ({ type: "GotGif" }), gifDecoder)
-    Http.expectString((result: Result<Http.Error, string>) => ({ type: "GotGif", result }))
+    "https://api.giphy.com/v1/gifs/random?api_key=fynIjQH0KtzG1JeEkZZGT3cTie9KFm1T&tag=cat",
+    // Http.expectString((result) => ({ type: "GotGif", result }))
+    Http.expectJson((result) => ({ type: "GotGif", result }), gifDecoder)
   );
+}
+
+function gifDecoder(s: string): Result<string, Http.Json> {
+  const parsed = JSON.parse(s);
+  if (parsed.data?.image_url !== undefined) {
+    return Ok(parsed.data.image_url);
+  }
+  return Err("Bad format");
 }
 
 /*

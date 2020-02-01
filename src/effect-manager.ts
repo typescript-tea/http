@@ -187,7 +187,6 @@ export function fileBody(f: File): Body {
 
 export type Expect<A> = {
   readonly type: "Expect";
-  readonly $: 0;
   readonly __type: XMLHttpRequestResponseType;
   readonly __toBody: (a: unknown) => unknown;
   readonly __toValue: (a: Response<unknown>) => A;
@@ -221,36 +220,43 @@ export function expectString<A>(toMsg: (r: Result<Error, string>) => A): Expect<
   return expectStringResponse(toMsg, resolve(Ok));
 }
 
-/*
+/**
+ * Expect the response body to be JSON. Like if you want to get a random cat
+ * GIF you might say:
+ *     import Http
+ *     import Json.Decode exposing (Decoder, field, string)
+ *     type Msg
+ *       = GotGif (Result Http.Error String)
+ *     getRandomCatGif : Cmd Msg
+ *     getRandomCatGif =
+ *       Http.get
+ *         { url = "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat"
+ *         , expect = Http.expectJson GotGif gifDecoder
+ *         }
+ *     gifDecoder : Decoder String
+ *     gifDecoder =
+ *       field "data" (field "image_url" string)
+ * The official guide goes through this particular example [here][]. That page
+ * also introduces [`elm/json`][json] to help you get started turning JSON into
+ * Elm values in other situations.
+ * [here]: https://guide.elm-lang.org/interop/json.html
+ * [json]: /packages/elm/json/latest/
+ * If the JSON decoder fails, you get a `BadBody` error that tries to explain
+ * what went wrong.
+ */
+export type Json = string | number | boolean | null | ReadonlyArray<Json> | { readonly [key: string]: Json };
+export function expectJson<A>(
+  toMsg: (result: Result<Error, Json>) => A,
+  decoder: (b: string) => Result<string, Json> = (s) => Ok(JSON.parse(s))
+): Expect<A> {
+  return expectStringResponse(toMsg, resolve(decoder));
 
-{-| Expect the response body to be JSON. Like if you want to get a random cat
-GIF you might say:
-    import Http
-    import Json.Decode exposing (Decoder, field, string)
-    type Msg
-      = GotGif (Result Http.Error String)
-    getRandomCatGif : Cmd Msg
-    getRandomCatGif =
-      Http.get
-        { url = "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat"
-        , expect = Http.expectJson GotGif gifDecoder
-        }
-    gifDecoder : Decoder String
-    gifDecoder =
-      field "data" (field "image_url" string)
-The official guide goes through this particular example [here][]. That page
-also introduces [`elm/json`][json] to help you get started turning JSON into
-Elm values in other situations.
-[here]: https://guide.elm-lang.org/interop/json.html
-[json]: /packages/elm/json/latest/
-If the JSON decoder fails, you get a `BadBody` error that tries to explain
-what went wrong.
--}
-expectJson : (Result Error a -> msg) -> Decode.Decoder a -> Expect msg
-expectJson toMsg decoder =
-  expectStringResponse toMsg <| resolve <|
-    \string ->
-      Result.mapError Decode.errorToString (Decode.decodeString decoder string)
+  // expectStringResponse toMsg <| resolve <|
+  //   \string ->
+  //     Result.mapError Decode.errorToString (Decode.decodeString decoder string)
+}
+
+/*
 
 
 {-| Expect the response body to be binary data. For example, maybe you are
@@ -388,7 +394,6 @@ export function expectStringResponse<A, x, a>(
 ): Expect<A> {
   return {
     type: "Expect",
-    $: 0,
     __type: "",
     __toBody: (a: string) => a,
     __toValue: (a: Response<string>) => toMsg(toResult(a)),
@@ -408,7 +413,6 @@ export function expectBytesResponse<A, x, a>(
 ): Expect<A> {
   return {
     type: "Expect",
-    $: 0,
     __type: "arraybuffer",
     __toBody: (arrayBuffer: unknown) => new DataView(arrayBuffer as ArrayBuffer),
     __toValue: (a: Response<Bytes>) => toMsg(toResult(a)),
