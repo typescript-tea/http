@@ -84,7 +84,6 @@ function viewGif(dispatch: Dispatch<Action>, state: State): JSX.Element {
 function getRandomCatGif(): Cmd<Action> {
   return Http.get(
     "https://api.giphy.com/v1/gifs/random?api_key=fynIjQH0KtzG1JeEkZZGT3cTie9KFm1T&tag=cat",
-    // Http.expectString((result) => ({ type: "GotGif", result }))
     Http.expectJson((result) => ({ type: "GotGif", result }), gifDecoder)
   );
 }
@@ -96,12 +95,6 @@ function gifDecoder(s: string): Result<string, Http.Json> {
   }
   return Err("Bad format");
 }
-
-/*
-gifDecoder : Decoder String
-gifDecoder =
-  field "data" (field "image_url" string)
-*/
 
 // -- PROGRAM
 
