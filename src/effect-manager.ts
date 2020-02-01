@@ -633,7 +633,7 @@ function onEffects<AppAction>(
   dispatchSelf: Dispatch<SelfAction>,
   cmds: ReadonlyArray<MyCmd<AppAction>>,
   subs: ReadonlyArray<MySub<AppAction>>,
-  state: State<AppAction>
+  state: State<AppAction> = init()
 ): State<AppAction> {
   const reqs = updateReqs(dispatchApp, dispatchSelf, cmds, state.reqs);
   return { reqs, subs };
@@ -686,65 +686,23 @@ function updateReqs<A>(
   return mutableReqs;
 }
 
-/*
-
-updateReqs router cmds reqs =
-  case cmds of
-    [] ->
-      Task.succeed reqs
-
-    cmd :: otherCmds ->
-      case cmd of
-        Cancel tracker ->
-          case Dict.get tracker reqs of
-            Nothing ->
-              updateReqs router otherCmds reqs
-
-            Just pid ->
-              Process.kill pid
-                |> Task.andThen (\_ -> updateReqs router otherCmds (Dict.remove tracker reqs))
-
-        Request req ->
-          Process.spawn (Elm.Kernel.Http.toTask router (Platform.sendToApp router) req)
-            |> Task.andThen (\pid ->
-                  case req.tracker of
-                    Nothing ->
-                      updateReqs router otherCmds reqs
-
-                    Just tracker ->
-                      updateReqs router otherCmds (Dict.insert tracker pid reqs)
-              )
-
-
-
-
-*/
-
 // -- SELF MESSAGES
 
 type SelfAction = { readonly type: "Progress"; readonly tracker: string; readonly progress: Progress };
 
 function onSelfAction<AppAction>(
-  _dispatchApp: Dispatch<AppAction>,
+  dispatchApp: Dispatch<AppAction>,
   _dispatchSelf: Dispatch<SelfAction>,
-  _action: SelfAction,
+  action: SelfAction,
   state: State<AppAction> = init()
 ): State<AppAction> {
-  // Task.sequence (List.filterMap (maybeSend router tracker progress) state.subs)
-  //   |> Task.andThen (\_ -> Task.succeed state)
+  for (const sub of state.subs) {
+    if (sub.tracker === action.tracker) {
+      dispatchApp(sub.toMsg(action.progress));
+    }
+  }
   return state;
 }
-
-/*
-
-maybeSend : MyRouter msg -> String -> Progress -> MySub msg -> Maybe (Task x ())
-maybeSend router desiredTracker progress (MySub actualTracker toMsg) =
-  if desiredTracker == actualTracker then
-    Just (Platform.sendToApp router (toMsg progress))
-  else
-    Nothing
-
-*/
 
 // -- SEND REQUEST
 

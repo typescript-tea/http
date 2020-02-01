@@ -15,10 +15,7 @@ type State =
   | { readonly type: "Loading" }
   | { readonly type: "Success"; readonly url: string };
 
-const init = (): readonly [State, Cmd<Action>] => [
-  { type: "Loading" },
-  getRandomCatGif()
-];
+const init = (): readonly [State, Cmd<Action>] => [{ type: "Loading" }, getRandomCatGif()];
 
 // -- UPDATE
 
@@ -31,6 +28,7 @@ function update(action: Action, _state: State): readonly [State, Cmd<Action>?] {
     case "MorePlease":
       return [{ type: "Loading" }, getRandomCatGif()];
     case "GotGif":
+      console.log("action", action);
       switch (action.result.type) {
         case "Ok":
           return [{ type: "Success", url: action.result.value }, undefined];
@@ -46,13 +44,7 @@ function update(action: Action, _state: State): readonly [State, Cmd<Action>?] {
 
 // -- VIEW
 
-function view({
-  dispatch,
-  state
-}: {
-  readonly dispatch: Dispatch<Action>;
-  readonly state: State;
-}): JSX.Element {
+function view({ dispatch, state }: { readonly dispatch: Dispatch<Action>; readonly state: State }): JSX.Element {
   return (
     <div>
       <h2>Random Cats</h2>
@@ -67,9 +59,7 @@ function viewGif(dispatch: Dispatch<Action>, state: State): JSX.Element {
       return (
         <div>
           I could not load a random cat for some reason.
-          <button onClick={() => dispatch({ type: "MorePlease" })}>
-            Try Again!
-          </button>
+          <button onClick={() => dispatch({ type: "MorePlease" })}>Try Again!</button>
         </div>
       );
 
@@ -78,10 +68,7 @@ function viewGif(dispatch: Dispatch<Action>, state: State): JSX.Element {
     case "Success":
       return (
         <div>
-          <button
-            onClick={() => dispatch({ type: "MorePlease" })}
-            style={{ display: "block" }}
-          >
+          <button onClick={() => dispatch({ type: "MorePlease" })} style={{ display: "block" }}>
             More Please!
           </button>
           <img src={state.url} />
@@ -98,7 +85,7 @@ function getRandomCatGif(): Cmd<Action> {
   return Http.get(
     "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat",
     // Http.expectJson<A>(() => ({ type: "GotGif" }), gifDecoder)
-    Http.expectString(() => ({ type: "GotGif" }))
+    Http.expectString((result: Result<Http.Error, string>) => ({ type: "GotGif", result }))
   );
 }
 
@@ -113,7 +100,7 @@ gifDecoder =
 const program: Program<State, Action, JSX.Element> = {
   init,
   update,
-  view
+  view,
 };
 
 // -- RUNTIME
