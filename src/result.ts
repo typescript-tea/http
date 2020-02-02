@@ -1,6 +1,10 @@
-// -- RESULT (from elm core)
-
 import { exhaustiveCheck } from "ts-exhaustive-check";
+
+/**
+ * @module Result
+ */
+
+// -- RESULT (from elm core)
 
 /**
  * A `Result` is either `Ok` meaning the computation succeeded, or it is an
@@ -29,10 +33,7 @@ export function Err<TError>(error: TError): Result<TError, never> {
  *     mapError .message (parseInt "123") == Ok 123
  *     mapError .message (parseInt "abc") == Err "char 'a' is not a number"
  */
-export function mapError<x, y, a>(
-  f: (x: x) => y,
-  result: Result<x, a>
-): Result<y, a> {
+export function mapError<x, y, a>(f: (x: x) => y, result: Result<x, a>): Result<y, a> {
   switch (result.type) {
     case "Ok":
       return Ok(result.value);

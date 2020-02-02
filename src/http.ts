@@ -2,10 +2,15 @@ import { EffectManager, Dispatch, Cmd, ActionMapper } from "@typescript-tea/core
 import { exhaustiveCheck } from "ts-exhaustive-check";
 import { Result, Err, Ok, mapError } from "./result";
 
+/**
+ * @module Http
+ */
+
 // -- REQUESTS
 
 /**
  * Create a `GET` request.
+ * ```
  *     import Http
  *     type Msg
  *       = GotText (Result Http.Error String)
@@ -15,6 +20,7 @@ import { Result, Err, Ok, mapError } from "./result";
  *         { url = "https://elm-lang.org/assets/public-opinion.txt"
  *         , expect = Http.expectString GotText
  *         }
+ * ```
  * You can use functions like [`expectString`](#expectString) and
  * [`expectJson`](#expectJson) to interpret the response in different ways. In
  * this example, we are expecting the response body to be a `String` containing

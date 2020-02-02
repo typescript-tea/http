@@ -1,4 +1,4 @@
-import { createEffectManager } from "../effect-manager";
+import { createEffectManager } from "../http";
 
 test("createEffectManager", () => {
   const map = createEffectManager();
