@@ -119,6 +119,50 @@ of a book:
 The response body is always some sequence of bytes, but in this case, we
 expect it to be UTF-8 encoded text that can be turned into a <code>String</code>.</p>
 </dd>
+<dt><a href="#expectJson">expectJson()</a></dt>
+<dd><p>Expect the response body to be JSON. Like if you want to get a random cat
+GIF you might say:
+    import Http
+    import Json.Decode exposing (Decoder, field, string)
+    type Msg
+      = GotGif (Result Http.Error String)
+    getRandomCatGif : Cmd Msg
+    getRandomCatGif =
+      Http.get
+        { url = &quot;<a href="https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&amp;tag=cat&quot;">https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&amp;tag=cat&quot;</a>
+        , expect = Http.expectJson GotGif gifDecoder
+        }
+    gifDecoder : Decoder String
+    gifDecoder =
+      field &quot;data&quot; (field &quot;image_url&quot; string)
+The official guide goes through this particular example [here][]. That page
+also introduces [<code>elm/json</code>][json] to help you get started turning JSON into
+Elm values in other situations.
+[here]: <a href="https://guide.elm-lang.org/interop/json.html">https://guide.elm-lang.org/interop/json.html</a>
+[json]: /packages/elm/json/latest/
+If the JSON decoder fails, you get a <code>BadBody</code> error that tries to explain
+what went wrong.</p>
+</dd>
+<dt><a href="#expectBytes">expectBytes()</a></dt>
+<dd><p>Expect the response body to be binary data. For example, maybe you are
+talking to an endpoint that gives back ProtoBuf data:
+    import Bytes.Decode as Bytes
+    import Http
+    type Msg
+      = GotData (Result Http.Error Data)
+    getData : Cmd Msg
+    getData =
+      Http.get
+        { url = &quot;/data&quot;
+        , expect = Http.expectBytes GotData dataDecoder
+        }
+    -- dataDecoder : Bytes.Decoder Data
+You would use <a href="/packages/elm/bytes/latest/"><code>elm/bytes</code></a> to decode the binary
+data according to a proto definition file like <code>example.proto</code>.
+If the decoder fails, you get a <code>BadBody</code> error that just indicates that
+<em>something</em> went wrong. It probably makes sense to debug by peeking at the
+bytes you are getting in the browser developer tools or something.</p>
+</dd>
 <dt><a href="#expectWhatever">expectWhatever()</a></dt>
 <dd><p>Expect the response body to be whatever. It does not matter. Ignore it!
 For example, you might want this when uploading files:
@@ -169,6 +213,48 @@ application!</p>
 <dd><p>Expect a <a href="#Response"><code>Response</code></a> with a <code>Bytes</code> body.
 It works just like <a href="#expectStringResponse"><code>expectStringResponse</code></a>, giving you
 more access to headers and more leeway in defining your own errors.</p>
+</dd>
+<dt><a href="#cancel">cancel()</a></dt>
+<dd><p>Try to cancel an ongoing request based on a <code>tracker</code>.</p>
+</dd>
+<dt><a href="#track">track()</a></dt>
+<dd><p>Track the progress of a request. Create a <a href="#request"><code>request</code></a> where
+<code>tracker = Just &quot;form.pdf&quot;</code> and you can track it with a subscription like
+<code>track &quot;form.pdf&quot; GotProgress</code>.</p>
+</dd>
+<dt><a href="#fractionSent">fractionSent()</a></dt>
+<dd><p>Turn <code>Sending</code> progress into a useful fraction.
+    fractionSent { sent =   0, size = 1024 } == 0.0
+    fractionSent { sent = 256, size = 1024 } == 0.25
+    fractionSent { sent = 512, size = 1024 } == 0.5
+    -- fractionSent { sent = 0, size = 0 } == 1.0
+The result is always between <code>0.0</code> and <code>1.0</code>, ensuring that any progress bar
+animations never go out of bounds.
+And notice that <code>size</code> can be zero. That means you are sending a request with
+an empty body. Very common! When <code>size</code> is zero, the result is always <code>1.0</code>.
+<strong>Note:</strong> If you create your own function to compute this fraction, watch out
+for divide-by-zero errors!</p>
+</dd>
+<dt><a href="#fractionReceived">fractionReceived()</a></dt>
+<dd><p>Turn <code>Receiving</code> progress into a useful fraction for progress bars.
+    fractionReceived { received =   0, size = Just 1024 } == 0.0
+    fractionReceived { received = 256, size = Just 1024 } == 0.25
+    fractionReceived { received = 512, size = Just 1024 } == 0.5
+    -- fractionReceived { received =   0, size = Nothing } == 0.0
+    -- fractionReceived { received = 256, size = Nothing } == 0.0
+    -- fractionReceived { received = 512, size = Nothing } == 0.0
+The <code>size</code> here is based on the [<code>Content-Length</code>][cl] header which may be
+missing in some cases. A server may be misconfigured or it may be streaming
+data and not actually know the final size. Whatever the case, this function
+will always give <code>0.0</code> when the final size is unknown.
+Furthermore, the <code>Content-Length</code> header may be incorrect! The implementation
+clamps the fraction between <code>0.0</code> and <code>1.0</code>, so you will just get <code>1.0</code> if
+you ever receive more bytes than promised.
+<strong>Note:</strong> If you are streaming something, you can write a custom version of
+this function that just tracks bytes received. Maybe you show that 22kb or 83kb
+have been downloaded, without a specific fraction. If you do this, be wary of
+divide-by-zero errors because <code>size</code> can always be zero!
+[cl]: <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Length">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Length</a></p>
 </dd>
 <dt><a href="#mapError">mapError()</a></dt>
 <dd><p>Transform an <code>Err</code> value. For example, say the errors we get have too much
@@ -322,6 +408,54 @@ of a book:
 The response body is always some sequence of bytes, but in this case, we
 expect it to be UTF-8 encoded text that can be turned into a `String`.
 
+<a name="expectJson"></a>
+
+## expectJson()
+Expect the response body to be JSON. Like if you want to get a random cat
+GIF you might say:
+    import Http
+    import Json.Decode exposing (Decoder, field, string)
+    type Msg
+      = GotGif (Result Http.Error String)
+    getRandomCatGif : Cmd Msg
+    getRandomCatGif =
+      Http.get
+        { url = "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat"
+        , expect = Http.expectJson GotGif gifDecoder
+        }
+    gifDecoder : Decoder String
+    gifDecoder =
+      field "data" (field "image_url" string)
+The official guide goes through this particular example [here][]. That page
+also introduces [`elm/json`][json] to help you get started turning JSON into
+Elm values in other situations.
+[here]: https://guide.elm-lang.org/interop/json.html
+[json]: /packages/elm/json/latest/
+If the JSON decoder fails, you get a `BadBody` error that tries to explain
+what went wrong.
+
+<a name="expectBytes"></a>
+
+## expectBytes()
+Expect the response body to be binary data. For example, maybe you are
+talking to an endpoint that gives back ProtoBuf data:
+    import Bytes.Decode as Bytes
+    import Http
+    type Msg
+      = GotData (Result Http.Error Data)
+    getData : Cmd Msg
+    getData =
+      Http.get
+        { url = "/data"
+        , expect = Http.expectBytes GotData dataDecoder
+        }
+    -- dataDecoder : Bytes.Decoder Data
+You would use [`elm/bytes`](/packages/elm/bytes/latest/) to decode the binary
+data according to a proto definition file like `example.proto`.
+If the decoder fails, you get a `BadBody` error that just indicates that
+_something_ went wrong. It probably makes sense to debug by peeking at the
+bytes you are getting in the browser developer tools or something.
+
 <a name="expectWhatever"></a>
 
 ## expectWhatever()
@@ -378,6 +512,56 @@ application!
 Expect a [`Response`](#Response) with a `Bytes` body.
 It works just like [`expectStringResponse`](#expectStringResponse), giving you
 more access to headers and more leeway in defining your own errors.
+
+<a name="cancel"></a>
+
+## cancel()
+Try to cancel an ongoing request based on a `tracker`.
+
+<a name="track"></a>
+
+## track()
+Track the progress of a request. Create a [`request`](#request) where
+`tracker = Just "form.pdf"` and you can track it with a subscription like
+`track "form.pdf" GotProgress`.
+
+<a name="fractionSent"></a>
+
+## fractionSent()
+Turn `Sending` progress into a useful fraction.
+    fractionSent { sent =   0, size = 1024 } == 0.0
+    fractionSent { sent = 256, size = 1024 } == 0.25
+    fractionSent { sent = 512, size = 1024 } == 0.5
+    -- fractionSent { sent = 0, size = 0 } == 1.0
+The result is always between `0.0` and `1.0`, ensuring that any progress bar
+animations never go out of bounds.
+And notice that `size` can be zero. That means you are sending a request with
+an empty body. Very common! When `size` is zero, the result is always `1.0`.
+**Note:** If you create your own function to compute this fraction, watch out
+for divide-by-zero errors!
+
+<a name="fractionReceived"></a>
+
+## fractionReceived()
+Turn `Receiving` progress into a useful fraction for progress bars.
+    fractionReceived { received =   0, size = Just 1024 } == 0.0
+    fractionReceived { received = 256, size = Just 1024 } == 0.25
+    fractionReceived { received = 512, size = Just 1024 } == 0.5
+    -- fractionReceived { received =   0, size = Nothing } == 0.0
+    -- fractionReceived { received = 256, size = Nothing } == 0.0
+    -- fractionReceived { received = 512, size = Nothing } == 0.0
+The `size` here is based on the [`Content-Length`][cl] header which may be
+missing in some cases. A server may be misconfigured or it may be streaming
+data and not actually know the final size. Whatever the case, this function
+will always give `0.0` when the final size is unknown.
+Furthermore, the `Content-Length` header may be incorrect! The implementation
+clamps the fraction between `0.0` and `1.0`, so you will just get `1.0` if
+you ever receive more bytes than promised.
+**Note:** If you are streaming something, you can write a custom version of
+this function that just tracks bytes received. Maybe you show that 22kb or 83kb
+have been downloaded, without a specific fraction. If you do this, be wary of
+divide-by-zero errors because `size` can always be zero!
+[cl]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Length
 
 <a name="mapError"></a>
 
