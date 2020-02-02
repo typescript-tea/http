@@ -26,6 +26,7 @@ import { Result, Err, Ok, mapError } from "./result";
  * this example, we are expecting the response body to be a `String` containing
  * the full text of _Public Opinion_ by Walter Lippmann.
  * **Note:** Use [`elm/url`](/packages/elm/url/latest) to build reliable URLs.
+ * @category Requests
  */
 export function get<A>(url: string, expect: Expect<A>): Cmd<A> {
   return request("GET", [], url, emptyBody(), expect, undefined, undefined);
@@ -53,7 +54,7 @@ export function get<A>(url: string, expect: Expect<A>): Cmd<A> {
  * like [`stringBody`](#stringBody) and [`jsonBody`](#jsonBody) if you need to
  * send information to the server.
  * [here]: https://guide.elm-lang.org/interop/json.html
- *
+ * @category Requests
  */
 export function post<A>(url: string, body: Body, expect: Expect<A>): Cmd<A> {
   return request("POST", [], url, body, expect, undefined, undefined);
@@ -80,6 +81,7 @@ export function post<A>(url: string, body: Body, expect: Expect<A>): Cmd<A> {
  * It lets you set custom `headers` as needed. The `timeout` is the number of
  * milliseconds you are willing to wait before giving up. The `tracker` lets you
  * [`cancel`](#cancel) and [`track`](#track) requests.
+ * @category Requests
  */
 export function request<A>(
   method: string,
@@ -110,6 +112,7 @@ export function request<A>(
 /**
  * An HTTP header for configuring requests. See a bunch of common headers
  * [here](https://en.wikipedia.org/wiki/List_of_HTTP_header_fields).
+ * @category Header
  */
 export type Header = readonly [string, string];
 
@@ -120,6 +123,7 @@ export type Header = readonly [string, string];
  *   header "Max-Forwards" "10"
  *   header "X-Requested-With" "XMLHttpRequest"
  * ```
+ * @category Header
  */
 export function header(name: string, value: string): Header {
   return [name, value];
@@ -129,12 +133,14 @@ export function header(name: string, value: string): Header {
 
 /**
  * Represents the body of a `Request`.
+ * @category Body
  */
 export type Body = readonly [string, unknown] | undefined;
 
 /**
  * Create an empty body for your `Request`. This is useful for GET requests
  * and POST requests where you are not sending any data.
+ * @category Body
  */
 export function emptyBody(): Body {
   return undefined;
@@ -143,6 +149,7 @@ export function emptyBody(): Body {
 /**
  * Put some JSON value in the body of your `Request`. This will automatically
  * add the `Content-Type: application/json` header.
+ * @category Body
  */
 export function jsonBody(value: {} | ReadonlyArray<unknown> | number | string | boolean): Body {
   return ["application/json", value];
@@ -159,6 +166,7 @@ export function jsonBody(value: {} | ReadonlyArray<unknown> | number | string | 
  * ```
  * The first argument is a [MIME type](https://en.wikipedia.org/wiki/Media_type)
  * of the body. Some servers are strict about this!
+ * @category Body
  */
 export function stringBody(mimeType: string, theString: string): Body {
   return [mimeType, theString];
@@ -179,6 +187,7 @@ export function stringBody(mimeType: string, theString: string): Body {
  * of the body. In other scenarios you may want to use MIME types like `image/png`
  * or `image/jpeg` instead.
  * **Note:** Use [`track`](#track) to track upload progress.
+ * @category Body
  */
 export function bytesBody(mimeType: string, bytes: Uint8Array): Body {
   return [mimeType, bytes];
@@ -190,6 +199,7 @@ export function bytesBody(mimeType: string, bytes: Uint8Array): Body {
  * it to a server.
  * This will automatically set the `Content-Type` to the MIME type of the file.
  * **Note:** Use [`track`](#track) to track upload progress.
+ * @category Body
  */
 export function fileBody(f: File): Body {
   return ["", f];
@@ -199,12 +209,15 @@ export function fileBody(f: File): Body {
 
 /**
  * Logic for interpreting a response body.
+ * @category Expect
  */
-
 export type Expect<A> = {
   readonly type: "Expect";
+  /** @ignore */
   readonly __type: XMLHttpRequestResponseType;
+  /** @ignore */
   readonly __toBody: (a: unknown) => unknown;
+  /** @ignore */
   readonly __toValue: (a: Response<unknown>) => A;
 };
 
@@ -233,6 +246,7 @@ function mapExpect<A1, A2>(func: ActionMapper<A1, A2>, expect: Expect<A1>): Expe
  * ```
  * The response body is always some sequence of bytes, but in this case, we
  * expect it to be UTF-8 encoded text that can be turned into a `String`.
+ * @category Expect
  */
 export function expectString<A>(toMsg: (r: Result<Error, string>) => A): Expect<A> {
   return expectStringResponse(toMsg, resolve(Ok));
@@ -263,6 +277,7 @@ export function expectString<A>(toMsg: (r: Result<Error, string>) => A): Expect<
  * [json]: /packages/elm/json/latest/
  * If the JSON decoder fails, you get a `BadBody` error that tries to explain
  * what went wrong.
+ * @category Expect
  */
 export function expectJson<A, TSuccess>(
   toMsg: (result: Result<Error, TSuccess>) => A,
@@ -272,11 +287,17 @@ export function expectJson<A, TSuccess>(
 }
 
 /**
+ * A type representing Json
+ * @category Expect
+ */
+export type Json = string | number | boolean | null | ReadonlyArray<Json> | { readonly [key: string]: Json };
+
+/**
  * Expect valid json but do not care about the contents. Probably
  * not a good idea as skipping checking the contents may cause
  * hard to debug runtime exceptions further ahead.
+ * @category Expect
  */
-export type Json = string | number | boolean | null | ReadonlyArray<Json> | { readonly [key: string]: Json };
 export function expectAnyJson<A>(toMsg: (result: Result<Error, Json>) => A): Expect<A> {
   return expectStringResponse(
     toMsg,
@@ -311,6 +332,7 @@ export function expectAnyJson<A>(toMsg: (result: Result<Error, Json>) => A): Exp
  * If the decoder fails, you get a `BadBody` error that just indicates that
  * _something_ went wrong. It probably makes sense to debug by peeking at the
  * bytes you are getting in the browser developer tools or something.
+ * @category Expect
  */
 export function expectBytes<A, TSuccess>(
   toMsg: (result: Result<Error, TSuccess>) => A,
@@ -335,6 +357,7 @@ export function expectBytes<A, TSuccess>(
  *         }
  * ```
  * The server may be giving back a response body, but we do not care about it.
+ * @category Expect
  */
 export function expectWhatever<A>(toMsg: (r: Result<Error, readonly []>) => A): Expect<A> {
   return expectBytesResponse(
@@ -383,6 +406,7 @@ function resolve<TSuccess, TBody>(toResult: (body: TBody) => Result<string, TSuc
  * whatever.
  * **Note:** You can use [`expectStringResponse`](#expectStringResponse) and
  * [`expectBytesResponse`](#expectBytesResponse) to get more flexibility on this.
+ * @category Expect
  */
 export type Error =
   | { readonly type: "BadUrl"; readonly url: string }
@@ -425,6 +449,7 @@ export type Error =
  * add logic to the `BadStatus_` branch so you can parse that JSON and give users
  * a more helpful message! Or make your own custom error type for your particular
  * application!
+ * @category Elaborate Expectations
  */
 export function expectStringResponse<A, TError, TSuccess>(
   toMsg: (r: Result<TError, TSuccess>) => A,
@@ -444,6 +469,7 @@ type Bytes = ArrayBuffer;
  * Expect a [`Response`](#Response) with a `Bytes` body.
  * It works just like [`expectStringResponse`](#expectStringResponse), giving you
  * more access to headers and more leeway in defining your own errors.
+ * @category Elaborate Expectations
  */
 export function expectBytesResponse<A, TError, TSuccess>(
   toMsg: (r: Result<TError, TSuccess>) => A,
@@ -467,6 +493,7 @@ export function expectBytesResponse<A, TError, TSuccess>(
  * The type of the `body` depends on whether you use
  * [`expectStringResponse`](#expectStringResponse)
  * or [`expectBytesResponse`](#expectBytesResponse).
+ * @category Elaborate Expectations
  */
 type Response<body> =
   | { readonly type: "BadUrl_"; readonly url: string }
@@ -493,6 +520,7 @@ type Response<body> =
  * In that case, all the values end up in a single entry in the `headers`
  * dictionary. The values are separated by commas, following the rules outlined
  * [here](https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable).
+ * @category Elaborate Expectations
  */
 type Metadata = {
   readonly url: string;
@@ -505,6 +533,7 @@ type Metadata = {
 
 /**
  * Try to cancel an ongoing request based on a `tracker`.
+ * @category Cancel
  */
 export function cancel<A>(tracker: string): Cmd<A> {
   return { home, type: "Cancel", tracker } as Cancel;
@@ -516,6 +545,7 @@ export function cancel<A>(tracker: string): Cmd<A> {
  * Track the progress of a request. Create a [`request`](#request) where
  * `tracker = Just "form.pdf"` and you can track it with a subscription like
  * `track "form.pdf" GotProgress`.
+ * @category Progress
  */
 export function track<A>(tracker: string, toMsg: (p: Progress) => A): MySub<A> {
   //  subscription (MySub tracker toMsg)
@@ -543,6 +573,7 @@ export function track<A>(tracker: string, toMsg: (p: Progress) => A): MySub<A> {
  * header, and in rare and annoying cases, a server may not include that header.
  * That is why the `size` is a `Maybe Int` in `Receiving`.
  * [cl]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Length
+ * @category Progress
  */
 type Progress =
   | { readonly type: "Sending"; readonly sent: number; readonly size: number }
@@ -566,6 +597,7 @@ type Progress =
  * an empty body. Very common! When `size` is zero, the result is always `1.0`.
  * **Note:** If you create your own function to compute this fraction, watch out
  * for divide-by-zero errors!
+ * @category Progress
  */
 export function fractionSent(sent: number, size: number): number {
   return size === 0 ? 1 : clamp(0, 1, sent / size);
@@ -596,6 +628,7 @@ function clamp(min: number, max: number, value: number): number {
  * have been downloaded, without a specific fraction. If you do this, be wary of
  * divide-by-zero errors because `size` can always be zero!
  * [cl]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Length
+ * @category Progress
  */
 export function fractionReceived(received: number, size: number | undefined): number {
   return size === undefined ? 0 : size === 0 ? 1 : clamp(0, 1, received / size);
@@ -603,12 +636,15 @@ export function fractionReceived(received: number, size: number | undefined): nu
 
 // -- COMMANDS and SUBSCRIPTIONS
 
+/** @ignore */
 export type MyCmd<A> = Cancel | Request<A>;
+/** @ignore */
 export type Cancel = {
   readonly home: typeof home;
   readonly type: "Cancel";
   readonly tracker: string;
 };
+/** @ignore */
 export type Request<A> = {
   readonly home: typeof home;
   readonly type: "Request";
@@ -622,7 +658,7 @@ export type Request<A> = {
   readonly allowCookiesFromOtherDomains: boolean;
 };
 
-export function mapCmd<A1, A2>(func: ActionMapper<A1, A2>, cmd: MyCmd<A1>): MyCmd<A2> {
+function mapCmd<A1, A2>(func: ActionMapper<A1, A2>, cmd: MyCmd<A1>): MyCmd<A2> {
   switch (cmd.type) {
     case "Cancel":
       return cmd;
@@ -636,13 +672,14 @@ export function mapCmd<A1, A2>(func: ActionMapper<A1, A2>, cmd: MyCmd<A1>): MyCm
   }
 }
 
+/** @ignore */
 export type MySub<A> = {
   readonly type: "MySub";
   readonly tracker: string;
   readonly toMsg: (p: Progress) => A;
 };
 
-export function mapSub<A1, A2>(func: ActionMapper<A1, A2>, sub: MySub<A1>): MySub<A2> {
+function mapSub<A1, A2>(func: ActionMapper<A1, A2>, sub: MySub<A1>): MySub<A2> {
   return { ...sub, toMsg: (p: Progress) => func(sub.toMsg(p)) };
 }
 
@@ -658,6 +695,10 @@ type Reqs = { readonly [key: string]: () => void };
 
 const init = <A>(): State<A> => ({ reqs: {}, subs: [] });
 
+/**
+ * Creates the effect manager.
+ * @category Effect Manager
+ */
 export const createEffectManager = <AppAction>(): EffectManager<
   AppAction,
   SelfAction,
@@ -665,8 +706,9 @@ export const createEffectManager = <AppAction>(): EffectManager<
   typeof home
 > => ({
   home,
-  mapCmd: (_, c) => c,
-  mapSub: (_, s) => s,
+  mapCmd,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  mapSub: mapSub as any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onEffects: onEffects as any,
   onSelfAction,
