@@ -21,8 +21,8 @@ import { Result, Err, Ok, mapError } from "./result";
  *         , expect = Http.expectString GotText
  *         }
  * ```
- * You can use functions like [`expectString`](#expectString) and
- * [`expectJson`](#expectJson) to interpret the response in different ways. In
+ * You can use functions like [`expectString`]{@link module:Http.expectString} and
+ * [`expectJson`]{@link module:Http.expectJson} to interpret the response in different ways. In
  * this example, we are expecting the response body to be a `String` containing
  * the full text of _Public Opinion_ by Walter Lippmann.
  * **Note:** Use [`elm/url`](/packages/elm/url/latest) to build reliable URLs.
