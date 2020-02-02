@@ -1,8 +1,7 @@
-import { exhaustiveCheck } from "ts-exhaustive-check";
-
 /**
  * @module Result
  */
+import { exhaustiveCheck } from "ts-exhaustive-check";
 
 // -- RESULT (from elm core)
 

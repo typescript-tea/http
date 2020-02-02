@@ -1,5 +1,5 @@
-import { EffectManager, Dispatch, Cmd, ActionMapper } from "@typescript-tea/core";
 import { exhaustiveCheck } from "ts-exhaustive-check";
+import { EffectManager, Dispatch, Cmd, ActionMapper } from "@typescript-tea/core";
 import { Result, Err, Ok, mapError } from "./result";
 
 /**
@@ -10,7 +10,7 @@ import { Result, Err, Ok, mapError } from "./result";
 
 /**
  * Create a `GET` request.
- * ```
+ * ```ts
  *     import Http
  *     type Msg
  *       = GotText (Result Http.Error String)
@@ -34,6 +34,7 @@ export function get<A>(url: string, expect: Expect<A>): Cmd<A> {
 /**
  * Create a `POST` request. So imagine we want to send a POST request for
  * some JSON data. It might look like this:
+ * ```ts
  *     import Http
  *     import Json.Decode exposing (list, string)
  *     type Msg
@@ -45,6 +46,7 @@ export function get<A>(url: string, expect: Expect<A>): Cmd<A> {
  *         , body = Http.emptyBody
  *         , expect = Http.expectJson GotBooks (list string)
  *         }
+ * ```
  * Notice that we are using [`expectJson`](#expectJson) to interpret the response
  * as JSON. You can learn more about how JSON decoders work [here][] in the guide.
  * We did not put anything in the body of our request, but you can use functions
@@ -59,6 +61,7 @@ export function post<A>(url: string, body: Body, expect: Expect<A>): Cmd<A> {
 
 /**
  * Create a custom request. For example, a PUT for files might look like this:
+ * ```ts
  *   import File
  *   import Http
  *   type Msg = Uploaded (Result Http.Error ())
@@ -73,6 +76,7 @@ export function post<A>(url: string, body: Body, expect: Expect<A>): Cmd<A> {
  *       , timeout = Nothing
  *       , tracker = Nothing
  *       }
+ * ```
  * It lets you set custom `headers` as needed. The `timeout` is the number of
  * milliseconds you are willing to wait before giving up. The `tracker` lets you
  * [`cancel`](#cancel) and [`track`](#track) requests.
@@ -111,9 +115,11 @@ export type Header = readonly [string, string];
 
 /**
  * Create a `Header`.
+ * ```ts
  *   header "If-Modified-Since" "Sat 29 Oct 1994 19:43:31 GMT"
  *   header "Max-Forwards" "10"
  *   header "X-Requested-With" "XMLHttpRequest"
+ * ```
  */
 export function header(name: string, value: string): Header {
   return [name, value];
@@ -145,10 +151,12 @@ export function jsonBody(value: {} | ReadonlyArray<unknown> | number | string | 
 /**
  * Put some string in the body of your `Request`. Defining `jsonBody` looks
  * like this:
+ * ```ts
  *     import Json.Encode as Encode
  *     jsonBody : Encode.Value -> Body
  *     jsonBody value =
  *       stringBody "application/json" (Encode.encode 0 value)
+ * ```
  * The first argument is a [MIME type](https://en.wikipedia.org/wiki/Media_type)
  * of the body. Some servers are strict about this!
  */
@@ -161,10 +169,12 @@ export function stringBody(mimeType: string, theString: string): Body {
  * [`elm/bytes`](/packages/elm/bytes/latest) to have full control over the binary
  * representation of the data you are sending. For example, you could create an
  * `archive.zip` file and send it along like this:
+ * ```ts
  *     import Bytes exposing (Bytes)
  *     zipBody : Bytes -> Body
  *     zipBody bytes =
  *       bytesBody "application/zip" bytes
+ * ```
  * The first argument is a [MIME type](https://en.wikipedia.org/wiki/Media_type)
  * of the body. In other scenarios you may want to use MIME types like `image/png`
  * or `image/jpeg` instead.
@@ -210,6 +220,7 @@ function mapExpect<A1, A2>(func: ActionMapper<A1, A2>, expect: Expect<A1>): Expe
 /**
  * Expect the response body to be a `String`. Like when getting the full text
  * of a book:
+ * ```ts
  *     import Http
  *     type Msg
  *       = GotText (Result Http.Error String)
@@ -219,6 +230,7 @@ function mapExpect<A1, A2>(func: ActionMapper<A1, A2>, expect: Expect<A1>): Expe
  *         { url = "https://elm-lang.org/assets/public-opinion.txt"
  *         , expect = Http.expectString GotText
  *         }
+ * ```
  * The response body is always some sequence of bytes, but in this case, we
  * expect it to be UTF-8 encoded text that can be turned into a `String`.
  */
@@ -229,6 +241,7 @@ export function expectString<A>(toMsg: (r: Result<Error, string>) => A): Expect<
 /**
  * Expect the response body to be JSON. Like if you want to get a random cat
  * GIF you might say:
+ * ```ts
  *     import Http
  *     import Json.Decode exposing (Decoder, field, string)
  *     type Msg
@@ -242,6 +255,7 @@ export function expectString<A>(toMsg: (r: Result<Error, string>) => A): Expect<
  *     gifDecoder : Decoder String
  *     gifDecoder =
  *       field "data" (field "image_url" string)
+ * ```
  * The official guide goes through this particular example [here][]. That page
  * also introduces [`elm/json`][json] to help you get started turning JSON into
  * Elm values in other situations.
@@ -279,6 +293,7 @@ export function expectAnyJson<A>(toMsg: (result: Result<Error, Json>) => A): Exp
 /**
  * Expect the response body to be binary data. For example, maybe you are
  * talking to an endpoint that gives back ProtoBuf data:
+ * ```ts
  *     import Bytes.Decode as Bytes
  *     import Http
  *     type Msg
@@ -290,6 +305,7 @@ export function expectAnyJson<A>(toMsg: (result: Result<Error, Json>) => A): Exp
  *         , expect = Http.expectBytes GotData dataDecoder
  *         }
  *     -- dataDecoder : Bytes.Decoder Data
+ * ```
  * You would use [`elm/bytes`](/packages/elm/bytes/latest/) to decode the binary
  * data according to a proto definition file like `example.proto`.
  * If the decoder fails, you get a `BadBody` error that just indicates that
@@ -306,6 +322,7 @@ export function expectBytes<A, TSuccess>(
 /**
  * Expect the response body to be whatever. It does not matter. Ignore it!
  * For example, you might want this when uploading files:
+ * ```ts
  *     import Http
  *     type Msg
  *       = Uploaded (Result Http.Error ())
@@ -316,6 +333,7 @@ export function expectBytes<A, TSuccess>(
  *         , body = Http.fileBody file
  *         , expect = Http.expectWhatever Uploaded
  *         }
+ * ```
  * The server may be giving back a response body, but we do not care about it.
  */
 export function expectWhatever<A>(toMsg: (r: Result<Error, readonly []>) => A): Expect<A> {
@@ -378,6 +396,7 @@ export type Error =
 /**
  * Expect a [`Response`](#Response) with a `String` body. So you could define
  * your own [`expectJson`](#expectJson) like this:
+ * ```ts
  *     import Http
  *     import Json.Decode as D
  *     expectJson : (Result Http.Error a -> msg) -> D.Decoder a -> Expect msg
@@ -399,6 +418,7 @@ export type Error =
  *                   Ok value
  *                 Err err ->
  *                   BadBody (D.errorToString err)
+ * ```
  * This function is great for fancier error handling and getting response headers.
  * For example, maybe when your sever gives a 404 status code (not found) it also
  * provides a helpful JSON message in the response body. This function lets you
@@ -506,7 +526,7 @@ export function track<A>(tracker: string, toMsg: (p: Progress) => A): MySub<A> {
  * There are two phases to HTTP requests. First you **send** a bunch of data,
  * then you **receive** a bunch of data. For example, say you use `fileBody` to
  * upload a file of 262144 bytes. From there, progress will go like this:
- * ```
+ * ```ts
  * Sending   { sent =      0, size = 262144 }  -- 0.0
  * Sending   { sent =  65536, size = 262144 }  -- 0.25
  * Sending   { sent = 131072, size = 262144 }  -- 0.5
@@ -534,10 +554,12 @@ type Progress =
 
 /**
  * Turn `Sending` progress into a useful fraction.
+ * ```ts
  *     fractionSent { sent =   0, size = 1024 } == 0.0
  *     fractionSent { sent = 256, size = 1024 } == 0.25
  *     fractionSent { sent = 512, size = 1024 } == 0.5
  *     -- fractionSent { sent = 0, size = 0 } == 1.0
+ * ```
  * The result is always between `0.0` and `1.0`, ensuring that any progress bar
  * animations never go out of bounds.
  * And notice that `size` can be zero. That means you are sending a request with
@@ -554,12 +576,14 @@ function clamp(min: number, max: number, value: number): number {
 
 /**
  * Turn `Receiving` progress into a useful fraction for progress bars.
+ * ```ts
  *     fractionReceived { received =   0, size = Just 1024 } == 0.0
  *     fractionReceived { received = 256, size = Just 1024 } == 0.25
  *     fractionReceived { received = 512, size = Just 1024 } == 0.5
  *     -- fractionReceived { received =   0, size = Nothing } == 0.0
  *     -- fractionReceived { received = 256, size = Nothing } == 0.0
  *     -- fractionReceived { received = 512, size = Nothing } == 0.0
+ * ```
  * The `size` here is based on the [`Content-Length`][cl] header which may be
  * missing in some cases. A server may be misconfigured or it may be streaming
  * data and not actually know the final size. Whatever the case, this function
@@ -683,24 +707,13 @@ function updateReqs<A>(
         }
         break;
       }
-
       case "Request": {
-        // Process.spawn (Elm.Kernel.Http.toTask router (Platform.sendToApp router) req)
-        //   |> Task.andThen (\pid ->
-        //         case req.tracker of
-        //           Nothing ->
-        //             updateReqs router otherCmds reqs
-
-        //           Just tracker ->
-        //             updateReqs router otherCmds (Dict.insert tracker pid reqs)
-        //     )
         const abort = toTask(dispatchApp, dispatchSelf, cmd);
         if (cmd.tracker !== undefined && abort !== undefined) {
           mutableReqs[cmd.tracker] = abort;
         }
         break;
       }
-
       default:
         exhaustiveCheck(cmd);
     }
