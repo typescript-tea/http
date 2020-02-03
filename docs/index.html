@@ -73,6 +73,134 @@
 					<h2>Introduction</h2>
 				</a>
 				<p>Make HTTP requests in typescript-tea. Talk to servers.</p>
+				<a href="#how-to-use" id="how-to-use" style="color: inherit; text-decoration: none;">
+					<h2>How to use</h2>
+				</a>
+				<p>Install:</p>
+				<pre><code>yarn <span class="hljs-keyword">add</span><span class="bash"> @typescript-tea/http</span></code></pre>
+				<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
+					<h2>Documentation</h2>
+				</a>
+				<p>Please see the <a href="https://typescript-tea.github.io/http/">documentation site</a>.</p>
+				<a href="#example" id="example" style="color: inherit; text-decoration: none;">
+					<h2>Example</h2>
+				</a>
+				<p>Here is a funny cats loader example:</p>
+				<pre><code class="language-ts">import React from "react";
+import ReactDOM from "react-dom";
+import { exhaustiveCheck } from "ts-exhaustive-check";
+import { Cmd, Program, Dispatch } from "@typescript-tea/core";
+import { reactRuntime } from "@typescript-tea/react-runtime";
+import * as Http from "../http";
+import { Result, Ok, Err } from "../result";
+
+// -- Press a button to send a GET request for random cat GIFs.
+
+// -- STATE
+
+type State =
+  | { readonly type: "Failure" }
+  | { readonly type: "Loading" }
+  | { readonly type: "Success"; readonly url: string };
+
+const init = (): readonly [State, Cmd&lt;Action&gt;] =&gt; [{ type: "Loading" }, getRandomCatGif()];
+
+// -- UPDATE
+
+type Action =
+  | { readonly type: "MorePlease" }
+  | { readonly type: "GotGif"; readonly result: Result&lt;Http.Error, string&gt; };
+
+function update(action: Action, _state: State): readonly [State, Cmd&lt;Action&gt;?] {
+  switch (action.type) {
+    case "MorePlease":
+      return [{ type: "Loading" }, getRandomCatGif()];
+    case "GotGif":
+      console.log("action", action);
+      switch (action.result.type) {
+        case "Ok":
+          return [{ type: "Success", url: action.result.value }, undefined];
+        case "Err":
+          return [{ type: "Failure" }, undefined];
+        default:
+          return exhaustiveCheck(action.result, true);
+      }
+    default:
+      return exhaustiveCheck(action, true);
+  }
+}
+
+// -- VIEW
+
+function view({ dispatch, state }: { readonly dispatch: Dispatch&lt;Action&gt;; readonly state: State }): JSX.Element {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Random Cats&lt;/h2&gt;
+      {viewGif(dispatch, state)}
+    &lt;/div&gt;
+  );
+}
+
+function viewGif(dispatch: Dispatch&lt;Action&gt;, state: State): JSX.Element {
+  switch (state.type) {
+    case "Failure":
+      return (
+        &lt;div&gt;
+          I could not load a random cat for some reason.
+          &lt;button onClick={() =&gt; dispatch({ type: "MorePlease" })}&gt;Try Again!&lt;/button&gt;
+        &lt;/div&gt;
+      );
+
+    case "Loading":
+      return &lt;span&gt;Loading...&lt;/span&gt;;
+    case "Success":
+      return (
+        &lt;div&gt;
+          &lt;button onClick={() =&gt; dispatch({ type: "MorePlease" })} style={{ display: "block" }}&gt;
+            More Please!
+          &lt;/button&gt;
+          &lt;img src={state.url} /&gt;
+        &lt;/div&gt;
+      );
+    default:
+      return exhaustiveCheck(state);
+  }
+}
+
+// -- HTTP
+
+function getRandomCatGif(): Cmd&lt;Action&gt; {
+  return Http.get(
+    "https://api.giphy.com/v1/gifs/random?api_key=fynIjQH0KtzG1JeEkZZGT3cTie9KFm1T&amp;tag=cat",
+    Http.expectJson((result) =&gt; ({ type: "GotGif", result }), gifDecoder)
+  );
+}
+
+function gifDecoder(s: string): Result&lt;string, string&gt; {
+  try {
+    const parsed = JSON.parse(s);
+    if (parsed.data?.image_url !== undefined) {
+      return Ok(parsed.data.image_url);
+    }
+  } catch (e) {
+    return Err("Bad format");
+  }
+  return Err("Bad format");
+}
+
+// -- PROGRAM
+
+const program: Program&lt;State, Action, JSX.Element&gt; = {
+  init,
+  update,
+  view,
+};
+
+// -- RUNTIME
+
+const Root = reactRuntime(program, [Http.createEffectManager()]);
+const app = document.getElementById("app");
+ReactDOM.render(&lt;Root /&gt;, app);</code></pre>
 				<a href="#how-to-develop" id="how-to-develop" style="color: inherit; text-decoration: none;">
 					<h2>How to develop</h2>
 				</a>
