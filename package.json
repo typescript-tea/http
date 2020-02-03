@@ -64,7 +64,7 @@
     "dist": "yarn build && rimraf dist && rollup lib/index.js --file dist/umd.js --format umd --name TypescriptTeaHttp",
     "verify": "yarn lint && yarn test-coverage && yarn dist",
     "report-coverage": "codecov -f coverage/lcov.info",
-    "docs": "typedoc",
+    "docs": "typedoc && touch docs/.nojekyll",
     "preversion": "yarn verify && yarn docs",
     "postversion": "git push --tags && yarn publish --new-version $npm_package_version && git push --follow-tags && echo \"Successfully released version $npm_package_version!\""
   },
