@@ -548,8 +548,7 @@ export function cancel<A>(tracker: string): Cmd<A> {
  * @category Progress
  */
 export function track<A>(tracker: string, toMsg: (p: Progress) => A): MySub<A> {
-  //  subscription (MySub tracker toMsg)
-  return { type: "MySub", tracker, toMsg };
+  return { home, type: "MySub", tracker, toMsg };
 }
 
 /**
@@ -674,6 +673,7 @@ function mapCmd<A1, A2>(func: ActionMapper<A1, A2>, cmd: MyCmd<A1>): MyCmd<A2> {
 
 /** @ignore */
 export type MySub<A> = {
+  readonly home: typeof home;
   readonly type: "MySub";
   readonly tracker: string;
   readonly toMsg: (p: Progress) => A;
@@ -707,10 +707,8 @@ export const createEffectManager = <AppAction>(): EffectManager<
 > => ({
   home,
   mapCmd,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  mapSub: mapSub as any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onEffects: onEffects as any,
+  mapSub,
+  onEffects,
   onSelfAction,
 });
 
