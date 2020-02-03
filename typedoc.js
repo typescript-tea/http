@@ -6,5 +6,5 @@ module.exports = {
   externalPattern: ["**/__tests__/**", "**/__examples__/**", "**/index.ts"],
   // theme: "minimal",
   // This seems not to work, it just turns catetory off?
-  // categorizeByGroup: false,
+  categorizeByGroup: false,
 };
