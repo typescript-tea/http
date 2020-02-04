@@ -39,7 +39,6 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "rimraf": "^3.0.0",
-    "rollup": "^1.29.1",
     "ts-jest": "^25.0.0",
     "ts-loader": "^6.2.1",
     "typedoc": "^0.17.0-3",
@@ -55,13 +54,13 @@
     "ts-exhaustive-check": "^1.0.0"
   },
   "scripts": {
-    "start": "webpack-dev-server",
+    "start": "webpack-dev-server --config webpack.examples.config",
     "build": "tsc -b",
     "clean": "tsc -b --clean && rimraf lib",
     "test": "jest",
     "test-coverage": "jest --coverage",
     "lint": "eslint './src/**/*.ts{,x}' --ext .js,.ts,.tsx -f visualstudio",
-    "dist": "yarn build && rimraf dist && rollup lib/index.js --file dist/umd.js --format umd --name TypescriptTeaHttp",
+    "dist": "yarn build && rimraf dist && webpack --config webpack.dist.config",
     "verify": "yarn lint && yarn test-coverage && yarn dist",
     "report-coverage": "codecov -f coverage/lcov.info",
     "docs": "typedoc && touch docs/.nojekyll",
