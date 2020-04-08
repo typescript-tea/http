@@ -14,8 +14,6 @@ Make HTTP requests in typescript-tea. Talk to servers.
 
 ## How to use
 
-Install:
-
 ```
 yarn add @typescript-tea/http
 ```
@@ -32,10 +30,8 @@ Here is a funny cats loader example:
 import React from "react";
 import ReactDOM from "react-dom";
 import { exhaustiveCheck } from "ts-exhaustive-check";
-import { Cmd, Program, Dispatch } from "@typescript-tea/core";
-import { reactRuntime } from "@typescript-tea/react-runtime";
+import { Cmd, Program, Dispatch, Result } from "@typescript-tea/core";
 import * as Http from "@typescript-tea/http";
-import { Result, Ok, Err } from "../result";
 
 // -- Press a button to send a GET request for random cat GIFs.
 
@@ -123,12 +119,12 @@ function gifDecoder(s: string): Result<string, string> {
   try {
     const parsed = JSON.parse(s);
     if (parsed.data?.image_url !== undefined) {
-      return Ok(parsed.data.image_url);
+      return Result.Ok(parsed.data.image_url);
     }
   } catch (e) {
-    return Err("Bad format");
+    return Result.Err("Bad format");
   }
-  return Err("Bad format");
+  return Result.Err("Bad format");
 }
 
 // -- PROGRAM
@@ -141,9 +137,9 @@ const program: Program<State, Action, JSX.Element> = {
 
 // -- RUNTIME
 
-const Root = reactRuntime(program, [Http.createEffectManager()]);
 const app = document.getElementById("app");
-ReactDOM.render(<Root />, app);
+const render = (view: JSX.Element) => ReactDOM.render(view, app);
+Program.run(program, render, [Http.createEffectManager()]);
 ```
 
 ## How to develop
