@@ -76,7 +76,6 @@
 				<a href="#how-to-use" id="how-to-use" style="color: inherit; text-decoration: none;">
 					<h2>How to use</h2>
 				</a>
-				<p>Install:</p>
 				<pre><code>yarn <span class="hljs-keyword">add</span><span class="bash"> @typescript-tea/http</span></code></pre>
 				<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
 					<h2>Documentation</h2>
@@ -89,10 +88,8 @@
 				<pre><code class="language-ts">import React from "react";
 import ReactDOM from "react-dom";
 import { exhaustiveCheck } from "ts-exhaustive-check";
-import { Cmd, Program, Dispatch } from "@typescript-tea/core";
-import { reactRuntime } from "@typescript-tea/react-runtime";
-import * as Http from "../http";
-import { Result, Ok, Err } from "../result";
+import { Cmd, Program, Dispatch, Result } from "@typescript-tea/core";
+import * as Http from "@typescript-tea/http";
 
 // -- Press a button to send a GET request for random cat GIFs.
 
@@ -180,12 +177,12 @@ function gifDecoder(s: string): Result&lt;string, string&gt; {
   try {
     const parsed = JSON.parse(s);
     if (parsed.data?.image_url !== undefined) {
-      return Ok(parsed.data.image_url);
+      return Result.Ok(parsed.data.image_url);
     }
   } catch (e) {
-    return Err("Bad format");
+    return Result.Err("Bad format");
   }
-  return Err("Bad format");
+  return Result.Err("Bad format");
 }
 
 // -- PROGRAM
@@ -198,9 +195,9 @@ const program: Program&lt;State, Action, JSX.Element&gt; = {
 
 // -- RUNTIME
 
-const Root = reactRuntime(program, [Http.createEffectManager()]);
 const app = document.getElementById("app");
-ReactDOM.render(&lt;Root /&gt;, app);</code></pre>
+const render = (view: JSX.Element) =&gt; ReactDOM.render(view, app);
+Program.run(program, render, [Http.createEffectManager()]);</code></pre>
 				<a href="#how-to-develop" id="how-to-develop" style="color: inherit; text-decoration: none;">
 					<h2>How to develop</h2>
 				</a>
