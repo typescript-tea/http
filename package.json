@@ -1,6 +1,6 @@
 {
   "name": "@typescript-tea/http",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Effect manager for HTTP requests",
   "main": "dist/umd.js",
   "module": "lib/index.js",
