@@ -1,5 +1,5 @@
 import { exhaustiveCheck } from "ts-exhaustive-check";
-import { EffectManager, Dispatch, Cmd, ActionMapper } from "@typescript-tea/core";
+import { EffectManager, Dispatch, Cmd } from "@typescript-tea/core";
 import { Result, Err, Ok, mapError } from "./result";
 
 /**
@@ -221,7 +221,7 @@ export type Expect<A> = {
   readonly __toValue: (a: Response<unknown>) => A;
 };
 
-function mapExpect<A1, A2>(func: ActionMapper<A1, A2>, expect: Expect<A1>): Expect<A2> {
+function mapExpect<A1, A2>(func: (a: A1) => A2, expect: Expect<A1>): Expect<A2> {
   return {
     ...expect,
     __toValue: function(x) {
@@ -657,7 +657,7 @@ export type Request<A> = {
   readonly allowCookiesFromOtherDomains: boolean;
 };
 
-function mapCmd<A1, A2>(func: ActionMapper<A1, A2>, cmd: MyCmd<A1>): MyCmd<A2> {
+function mapCmd<A1, A2>(func: (a: A1) => A2, cmd: MyCmd<A1>): MyCmd<A2> {
   switch (cmd.type) {
     case "Cancel":
       return cmd;
@@ -679,7 +679,7 @@ export type MySub<A> = {
   readonly toMsg: (p: Progress) => A;
 };
 
-function mapSub<A1, A2>(func: ActionMapper<A1, A2>, sub: MySub<A1>): MySub<A2> {
+function mapSub<A1, A2>(func: (a: A1) => A2, sub: MySub<A1>): MySub<A2> {
   return { ...sub, toMsg: (p: Progress) => func(sub.toMsg(p)) };
 }
 
@@ -700,14 +700,15 @@ const init = <A>(): State<A> => ({ reqs: {}, subs: [] });
  * @category Effect Manager
  */
 export const createEffectManager = <AppAction>(): EffectManager<
+  typeof home,
   AppAction,
   SelfAction,
-  State<AppAction>,
-  typeof home
+  State<AppAction>
 > => ({
   home,
   mapCmd,
   mapSub,
+  setup: () => () => undefined,
   onEffects,
   onSelfAction,
 });

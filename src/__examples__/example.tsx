@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { exhaustiveCheck } from "ts-exhaustive-check";
 import { Cmd, Program, Dispatch } from "@typescript-tea/core";
-import { reactRuntime } from "@typescript-tea/react-runtime";
+// import { reactRuntime } from "@typescript-tea/react-runtime";
 import * as Http from "../http";
 import { Result, Ok, Err } from "../result";
 
@@ -102,7 +102,7 @@ function gifDecoder(s: string): Result<string, string> {
 
 // -- PROGRAM
 
-const program: Program<State, Action, JSX.Element> = {
+const program: Program<undefined, State, Action, JSX.Element> = {
   init,
   update,
   view,
@@ -110,6 +110,6 @@ const program: Program<State, Action, JSX.Element> = {
 
 // -- RUNTIME
 
-const Root = reactRuntime(program, [Http.createEffectManager()]);
 const app = document.getElementById("app");
-ReactDOM.render(<Root />, app);
+const render = (view: JSX.Element): void => ReactDOM.render(view, app);
+Program.run(program, undefined, render, [Http.createEffectManager()]);

@@ -546,17 +546,10 @@
     semver "^6.3.0"
     tsutils "^3.17.1"
 
-"@typescript-tea/core@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@typescript-tea/core/-/core-0.1.0.tgz#1a5b29a9f9ec0e23526203db60e837ed1f0de2c3"
-  integrity sha512-pESCBDcz38fwzcXJD+L05VKV+/IODfjyTCkbW29+MfFpKQehjN/iNfJEHHzP7FyXWYiCn4IhGUnzZto3Xns2GQ==
-  dependencies:
-    ts-exhaustive-check "^1.0.0"
-
-"@typescript-tea/react-runtime@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@typescript-tea/react-runtime/-/react-runtime-0.1.1.tgz#52524c22d5f3bae7ed4349655a3c307b0a49a026"
-  integrity sha512-b1GeM/aYOKa7vuna5k5vnrvBVUxf7gS8o4nOUbP9Q7NvO7B1exYIM2YSe6Tl8EiHaiNSSXOJMJiMvksMwD4Mcg==
+"@typescript-tea/core@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@typescript-tea/core/-/core-0.4.0.tgz#756e93b48ee86d6bd26b347aafe7a2918333f103"
+  integrity sha512-OsolseeD3PECnkq+ozP/Vgo+qeiV0hO6l3uzoAMUS85BIRbjY9nLD0Eykovzojh40q4OoAjFnIGeMP+LWkYb7g==
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
