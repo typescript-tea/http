@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>&quot;http&quot; | @typescript-tea/http</title>
-	<meta name="description" content="">
+	<meta name="description" content="Documentation for @typescript-tea/http">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
@@ -13,7 +13,7 @@
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -110,10 +110,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
 					<a name="body" class="tsd-anchor"></a>
 					<h3>Body</h3>
-					<div class="tsd-signature tsd-kind-icon">Body<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></div>
+					<div class="tsd-signature tsd-kind-icon">Body<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">readonly </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L138">http.ts:138</a></li>
+							<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L138">http.ts:138</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -132,7 +132,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L192">http.ts:192</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L192">http.ts:192</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -144,7 +144,7 @@
 									<pre><code class="language-ts">    <span class="hljs-keyword">import</span> Bytes exposing (Bytes)
     zipBody : Bytes -&gt; Body
     zipBody bytes =
-      bytesBody <span class="hljs-string">"application/zip"</span> bytes</code></pre>
+      bytesBody <span class="hljs-string">&quot;application/zip&quot;</span> bytes</code></pre>
 									<p>The first argument is a <a href="https://en.wikipedia.org/wiki/Media_type">MIME type</a>
 										of the body. In other scenarios you may want to use MIME types like <code>image/png</code>
 										or <code>image/jpeg</code> instead.
@@ -174,7 +174,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L145">http.ts:145</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L145">http.ts:145</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -197,7 +197,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L204">http.ts:204</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L204">http.ts:204</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -229,7 +229,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L154">http.ts:154</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L154">http.ts:154</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -258,7 +258,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L171">http.ts:171</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L171">http.ts:171</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -268,7 +268,7 @@
 									<pre><code class="language-ts">    <span class="hljs-keyword">import</span> Json.Encode <span class="hljs-keyword">as</span> Encode
     jsonBody : Encode.Value -&gt; Body
     jsonBody value =
-      stringBody <span class="hljs-string">"application/json"</span> (Encode.encode <span class="hljs-number">0</span> value)</code></pre>
+      stringBody <span class="hljs-string">&quot;application/json&quot;</span> (Encode.encode <span class="hljs-number">0</span> value)</code></pre>
 									<p>The first argument is a <a href="https://en.wikipedia.org/wiki/Media_type">MIME type</a>
 									of the body. Some servers are strict about this!</p>
 								</div>
@@ -299,7 +299,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L538">http.ts:538</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L538">http.ts:538</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -336,7 +336,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L702">http.ts:702</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L702">http.ts:702</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -367,7 +367,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L474">http.ts:474</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L474">http.ts:474</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -448,7 +448,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L454">http.ts:454</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L454">http.ts:454</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -461,7 +461,7 @@
     expectJson toMsg decoder =
       expectStringResponse toMsg &lt;|
         \response -&gt;
-          <span class="hljs-keyword">case</span> response of
+          <span class="hljs-keyword">case</span> response <span class="hljs-keyword">of</span>
             Http.BadUrl_ url -&gt;
               Err (Http.BadUrl url)
             Http.Timeout_ -&gt;
@@ -471,7 +471,7 @@
             Http.BadStatus_ metadata body -&gt;
               Err (Http.BadStatus metadata.statusCode)
             Http.GoodStatus_ metadata body -&gt;
-              <span class="hljs-keyword">case</span> D.decodeString decoder body of
+              <span class="hljs-keyword">case</span> D.decodeString decoder body <span class="hljs-keyword">of</span>
                 Ok value -&gt;
                   Ok value
                 Err err -&gt;
@@ -554,7 +554,7 @@
 					<div class="tsd-signature tsd-kind-icon">Error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"BadUrl"</span><span class="tsd-signature-symbol">; </span>url<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"Timeout"</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"NetworkError"</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>statusCode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"BadStatus"</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"BadBody"</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L411">http.ts:411</a></li>
+							<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L411">http.ts:411</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -569,7 +569,7 @@
 									of the response was something unexpected. The <code>String</code> in this case is a
 									debugging message that explains what went wrong with your JSON decoder or
 								whatever.</li>
-								<li><em>Note:*</em> You can use <a href="#expectStringResponse"><code>expectStringResponse</code></a> and
+								<li>*Note:** You can use <a href="#expectStringResponse"><code>expectStringResponse</code></a> and
 								<a href="#expectBytesResponse"><code>expectBytesResponse</code></a> to get more flexibility on this.</li>
 							</ul>
 						</div>
@@ -581,7 +581,7 @@
 					<div class="tsd-signature tsd-kind-icon">Expect&lt;A&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"Expect"</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L214">http.ts:214</a></li>
+							<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L214">http.ts:214</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -599,7 +599,7 @@
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter">
-								<h5>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"Expect"</span></h5>
+								<h5><span class="tsd-flag ts-flagReadonly">Readonly</span> type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"Expect"</span></h5>
 							</li>
 						</ul>
 					</div>
@@ -610,7 +610,7 @@
 					<div class="tsd-signature tsd-kind-icon">Json<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ReadonlyArray</span><span class="tsd-signature-symbol">&lt;</span><a href="_http_.html#json" class="tsd-signature-type">Json</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L293">http.ts:293</a></li>
+							<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L293">http.ts:293</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -629,7 +629,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L301">http.ts:301</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L301">http.ts:301</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -683,7 +683,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L337">http.ts:337</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L337">http.ts:337</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -697,7 +697,7 @@
     getData : Cmd Msg
     getData =
       Http.get
-        { url = <span class="hljs-string">"/data"</span>
+        { url = <span class="hljs-string">&quot;/data&quot;</span>
         , expect = Http.expectBytes GotData dataDecoder
         }
     -- dataDecoder : Bytes.Decoder Data</code></pre>
@@ -776,7 +776,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L282">http.ts:282</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L282">http.ts:282</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -790,12 +790,12 @@
     getRandomCatGif : Cmd Msg
     getRandomCatGif =
       Http.get
-        { url = <span class="hljs-string">"https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&amp;tag=cat"</span>
+        { url = <span class="hljs-string">&quot;https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&amp;tag=cat&quot;</span>
         , expect = Http.expectJson GotGif gifDecoder
         }
     gifDecoder : Decoder <span class="hljs-built_in">String</span>
     gifDecoder =
-      field <span class="hljs-string">"data"</span> (field <span class="hljs-string">"image_url"</span> <span class="hljs-built_in">string</span>)</code></pre>
+      field <span class="hljs-string">&quot;data&quot;</span> (field <span class="hljs-string">&quot;image_url&quot;</span> <span class="hljs-built_in">string</span>)</code></pre>
 									<p>The official guide goes through this particular example [here][]. That page
 										also introduces [<code>elm/json</code>][json] to help you get started turning JSON into
 										Elm values in other situations.
@@ -873,7 +873,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L251">http.ts:251</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L251">http.ts:251</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -886,7 +886,7 @@
     getPublicOpinion : Cmd Msg
     getPublicOpinion =
       Http.get
-        { url = <span class="hljs-string">"https://elm-lang.org/assets/public-opinion.txt"</span>
+        { url = <span class="hljs-string">&quot;https://elm-lang.org/assets/public-opinion.txt&quot;</span>
         , expect = Http.expectString GotText
         }</code></pre>
 									<p>The response body is always some sequence of bytes, but in this case, we
@@ -931,13 +931,13 @@
 					<a name="expectwhatever" class="tsd-anchor"></a>
 					<h3>expect<wbr>Whatever</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">expect<wbr>Whatever&lt;A&gt;<span class="tsd-signature-symbol">(</span>toMsg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>r<span class="tsd-signature-symbol">: </span><a href="_result_.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><a href="_http_.html#error" class="tsd-signature-type">Error</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">A</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_http_.html#expect" class="tsd-signature-type">Expect</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">A</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">expect<wbr>Whatever&lt;A&gt;<span class="tsd-signature-symbol">(</span>toMsg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>r<span class="tsd-signature-symbol">: </span><a href="_result_.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><a href="_http_.html#error" class="tsd-signature-type">Error</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">readonly </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">A</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_http_.html#expect" class="tsd-signature-type">Expect</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">A</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L362">http.ts:362</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L362">http.ts:362</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -950,7 +950,7 @@
     upload : File -&gt; Cmd Msg
     upload file =
       Http.post
-        { url = <span class="hljs-string">"/upload"</span>
+        { url = <span class="hljs-string">&quot;/upload&quot;</span>
         , body = Http.fileBody file
         , expect = Http.expectWhatever Uploaded
         }</code></pre>
@@ -966,18 +966,18 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>toMsg: <span class="tsd-signature-symbol">(</span>r<span class="tsd-signature-symbol">: </span><a href="_result_.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><a href="_http_.html#error" class="tsd-signature-type">Error</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">A</span></h5>
+									<h5>toMsg: <span class="tsd-signature-symbol">(</span>r<span class="tsd-signature-symbol">: </span><a href="_result_.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><a href="_http_.html#error" class="tsd-signature-type">Error</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">readonly </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">A</span></h5>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-signature">
 											<ul class="tsd-signatures tsd-kind-type-literal">
-												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>r<span class="tsd-signature-symbol">: </span><a href="_result_.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><a href="_http_.html#error" class="tsd-signature-type">Error</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">A</span></li>
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>r<span class="tsd-signature-symbol">: </span><a href="_result_.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><a href="_http_.html#error" class="tsd-signature-type">Error</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">readonly </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">A</span></li>
 											</ul>
 											<ul class="tsd-descriptions">
 												<li class="tsd-description">
 													<h4 class="tsd-parameters-title">Parameters</h4>
 													<ul class="tsd-parameters">
 														<li>
-															<h5>r: <a href="_result_.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><a href="_http_.html#error" class="tsd-signature-type">Error</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></h5>
+															<h5>r: <a href="_result_.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><a href="_http_.html#error" class="tsd-signature-type">Error</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">readonly </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></h5>
 														</li>
 													</ul>
 													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">A</span></h4>
@@ -997,10 +997,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
 					<a name="header" class="tsd-anchor"></a>
 					<h3>Header</h3>
-					<div class="tsd-signature tsd-kind-icon">Header<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]</span></div>
+					<div class="tsd-signature tsd-kind-icon">Header<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">readonly </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L117">http.ts:117</a></li>
+							<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L117">http.ts:117</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -1020,15 +1020,15 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L128">http.ts:128</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L128">http.ts:128</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Create a <code>Header</code>.</p>
-									<pre><code class="language-ts">  header <span class="hljs-string">"If-Modified-Since"</span> <span class="hljs-string">"Sat 29 Oct 1994 19:43:31 GMT"</span>
-  header <span class="hljs-string">"Max-Forwards"</span> <span class="hljs-string">"10"</span>
-  header <span class="hljs-string">"X-Requested-With"</span> <span class="hljs-string">"XMLHttpRequest"</span></code></pre>
+									<pre><code class="language-ts">  header <span class="hljs-string">&quot;If-Modified-Since&quot;</span> <span class="hljs-string">&quot;Sat 29 Oct 1994 19:43:31 GMT&quot;</span>
+  header <span class="hljs-string">&quot;Max-Forwards&quot;</span> <span class="hljs-string">&quot;10&quot;</span>
+  header <span class="hljs-string">&quot;X-Requested-With&quot;</span> <span class="hljs-string">&quot;XMLHttpRequest&quot;</span></code></pre>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1057,7 +1057,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L632">http.ts:632</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L632">http.ts:632</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1106,7 +1106,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L601">http.ts:601</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L601">http.ts:601</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1147,7 +1147,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L550">http.ts:550</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L550">http.ts:550</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1207,7 +1207,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L31">http.ts:31</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L31">http.ts:31</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1219,7 +1219,7 @@
     getPublicOpinion : Cmd Msg
     getPublicOpinion =
       Http.get
-        { url = <span class="hljs-string">"https://elm-lang.org/assets/public-opinion.txt"</span>
+        { url = <span class="hljs-string">&quot;https://elm-lang.org/assets/public-opinion.txt&quot;</span>
         , expect = Http.expectString GotText
         }</code></pre>
 									<p>You can use functions like [<code>expectString</code>]{@link module:Http.expectString} and
@@ -1258,7 +1258,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L59">http.ts:59</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L59">http.ts:59</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1272,7 +1272,7 @@
     postBooks : Cmd Msg
     postBooks =
       Http.post
-        { url = <span class="hljs-string">"https://example.com/books"</span>
+        { url = <span class="hljs-string">&quot;https://example.com/books&quot;</span>
         , body = Http.emptyBody
         , expect = Http.expectJson GotBooks (list <span class="hljs-built_in">string</span>)
         }</code></pre>
@@ -1316,7 +1316,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/f7edc4c/src/http.ts#L86">http.ts:86</a></li>
+									<li>Defined in <a href="https://github.com/typescript-tea/http/blob/666726b/src/http.ts#L86">http.ts:86</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1328,9 +1328,9 @@
   upload : File.File -&gt; Cmd Msg
   upload file =
     Http.request
-      { method = <span class="hljs-string">"PUT"</span>
+      { method = <span class="hljs-string">&quot;PUT&quot;</span>
       , headers = []
-      , url = <span class="hljs-string">"https://example.com/publish"</span>
+      , url = <span class="hljs-string">&quot;https://example.com/publish&quot;</span>
       , body = Http.fileBody file
       , expect = Http.expectWhatever Uploaded
       , timeout = Nothing
@@ -1481,57 +1481,10 @@
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
-				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
-				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
 				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
 				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
-				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
 				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
-				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
-				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
-				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
-				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
-				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
-				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
-				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
-				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
 			</ul>
 		</div>
 	</div>
@@ -1541,6 +1494,5 @@
 </div>
 <div class="overlay"></div>
 <script src="../assets/js/main.js"></script>
-<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
 </body>
 </html>
