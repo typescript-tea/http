@@ -12,6 +12,7 @@ module.exports = {
     rules: [{ test: /\.tsx?$/, loader: "ts-loader" }]
   },
   devServer: {
-    contentBase: "public"
+    contentBase: "public",
+    stats: "errors-only",
   }
 };
