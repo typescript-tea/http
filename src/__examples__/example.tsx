@@ -94,7 +94,7 @@ function gifDecoder(s: string): Result<string, string> {
     if (parsed.data?.image_url !== undefined) {
       return Ok(parsed.data.image_url);
     }
-  } catch (e) {
+  } catch (e: unknown) {
     return Err("Bad format");
   }
   return Err("Bad format");

@@ -151,7 +151,7 @@ export function emptyBody(): Body {
  * add the `Content-Type: application/json` header.
  * @category Body
  */
-export function jsonBody(value: {} | ReadonlyArray<unknown> | number | string | boolean): Body {
+export function jsonBody(value: Json): Body {
   return ["application/json", value];
 }
 
@@ -224,7 +224,7 @@ export type Expect<A> = {
 function mapExpect<A1, A2>(func: (a: A1) => A2, expect: Expect<A1>): Expect<A2> {
   return {
     ...expect,
-    __toValue: function(x) {
+    __toValue: function (x) {
       return func(expect.__toValue(x));
     },
   };
@@ -304,7 +304,7 @@ export function expectAnyJson<A>(toMsg: (result: Result<Error, Json>) => A): Exp
     resolve((s) => {
       try {
         return Ok(JSON.parse(s));
-      } catch (e) {
+      } catch (e: unknown) {
         return Err("Could not parse JSON");
       }
     })
@@ -804,7 +804,7 @@ function toTask<A>(
 
   try {
     xhr.open(request.method, request.url, true);
-  } catch (e) {
+  } catch (e: unknown) {
     done({ type: "BadUrl_", url: request.url });
     return undefined;
   }
