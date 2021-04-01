@@ -366,8 +366,8 @@ export function expectWhatever<A>(toMsg: (r: Result<Error, readonly []>) => A): 
   );
 }
 
-function resolve<TSuccess, TBody>(toResult: (body: TBody) => Result<string, TSuccess>) {
-  return (response: Response<TBody>) => {
+function resolve<TBody, TValue>(parseBody: (body: TBody) => Result<string, TValue>) {
+  return (response: Response<TBody>): Result<Error, TValue> => {
     switch (response.type) {
       case "BadUrl_":
         return Err({ type: "BadUrl", url: response.url });
@@ -381,13 +381,9 @@ function resolve<TSuccess, TBody>(toResult: (body: TBody) => Result<string, TSuc
           statusCode: response.metadata.statusCode,
         });
       case "GoodStatus_":
-        return mapError(
-          () => ({
-            type: "BadBody",
-            body: (response.body as unknown) as string,
-          }),
-          toResult(response.body)
-        );
+        // If the parseBody() function fails, we return a BadBody error with the
+        // string that was the error message from the parseBody() function
+        return mapError((errorMessage) => ({ type: "BadBody", errorMessage }), parseBody(response.body));
       default:
         return exhaustiveCheck(response, true);
     }
@@ -413,7 +409,7 @@ export type Error =
   | { readonly type: "Timeout" }
   | { readonly type: "NetworkError" }
   | { readonly type: "BadStatus"; readonly statusCode: number }
-  | { readonly type: "BadBody"; readonly body: string };
+  | { readonly type: "BadBody"; readonly errorMessage: string };
 
 // -- ELABORATE EXPECTATIONS
 
